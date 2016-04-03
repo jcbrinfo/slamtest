@@ -74,7 +74,7 @@ test_diff() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	if [ -f "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" ]; then
+	if [ -e "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" ]; then
 		diff -q -- "${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" >/dev/null 2>&1
 		if [ "$?" = 0 ]; then
 			add_success "success" "${test_name}" "${variant[@]}"
@@ -158,11 +158,11 @@ main() {
 	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
 		if [ -e "${test_case}" ]; then
 			test_case="${test_case##*/}"
-			if [ -f "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
+			if [ -e "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
 				test_one "${test_case}" out
 			fi
 			for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_case}"; do
-				if [ -f "${expected_out_path}" ]; then
+				if [ -e "${expected_out_path}" ]; then
 					out_dir="${expected_out_path%"/${test_case}"}"
 					out_dir_name="${out_dir##*/}"
 					test_one "${test_case}" "${out_dir_name}"
