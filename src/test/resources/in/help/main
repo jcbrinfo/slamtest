@@ -1,7 +1,7 @@
 #! /bin/bash
 help=$($1 -h)
 status=$?
-if [-n "$help" ]; then
+if [ -n "$help" ]; then
 	echo $status
 else
 	echo "EMPTY"
