@@ -1,10 +1,10 @@
 # A definition of the SlamTest’s `run_test` function for the self-tests.
 # See: README.md
 
-mkdir -p -- target/test/in
-
 run_test() {
-	cp -a -t target/test/in -- "$1"
+	local TMP_DIR=target/test/in
+	mkdir -p -- "${TMP_DIR}"
+	cp -a -t "${TMP_DIR}" -- "$1"
 	(
 		cd "${TMP_DIR}/${1##*/}"
 		set -- ../../../../target/main/slamtest
