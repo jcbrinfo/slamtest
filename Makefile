@@ -8,6 +8,11 @@ build:
 	sed "s/\\\$$VERSION\\\$$/$${PROJECT_VERSION#version-}/g" src/main/bash/slamtest > target/main/slamtest && \
 	chmod u+x target/main/slamtest
 
+# Removes generated files
+.PHONY: clean
+clean:
+	rm -rf target
+
 test: test-with-lib test-with-src
 
 # Tests the current version with an older (simplier) version.
