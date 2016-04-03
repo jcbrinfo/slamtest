@@ -1,0 +1,188 @@
+#! /bin/bash
+# SlamTest, version $VERSION$.
+# 
+# Test the specified command against various inputs.
+#
+# This script is designed to be called from the project’s root directory.
+#
+# `src/test/in` contains input files.
+# `src/test/resources/out` and/or `src/test/resources/out-*` contain expected
+# outputs. For `src/test/resources/out-<variant>`, `<variant>` is
+# added to the end of the tested command.
+#
+# Tests’ outputs are stored in `target/test/`.
+#
+# Returns 0 if and only if all executed tests pass.
+
+VERSION='$VERSION$'
+LICENSE='Copyright (c) 2016, jcbrinfo <jcbrinfo@users.noreply.github.com>.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.'
+
+# ##############################################################################
+# Paths
+
+# The following paths MUST NOT end with a slash.
+
+readonly TEST_SOURCE_DIRECTORY=src/test/resources
+readonly TEST_TARGET_DIRECTORY=target/test
+
+# ##############################################################################
+# Errors
+
+readonly E_FAIL=1
+readonly E_USAGE=2
+
+# ##############################################################################
+# Argument parsing and counters
+
+tested_command=("$@")
+successes=0
+fails=0
+
+# ##############################################################################
+
+##run_test in_path out_path [variant]
+# Executes the specified test.
+#
+# @param in_path the path to the input file
+# @param out_path the path to which the output is redirected
+# @param variant the additional argument to pass to the tested program
+run_test() {
+	"${tested_command[@]}" "${@:3}" < "$1" > "$2" 2>&1
+}
+
+##test_diff test_name out_dir_name [variant]
+# Compares actual and expected outputs of the specified test.
+#
+# Expects the test has already been executed.
+#
+# @param test_name the filename of the test
+# @param out_dir_name the filename of the output directories
+# @param variant the last argument to pass to the tested program
+test_diff() {
+	local test_name="$1"
+	local out_dir_name="$2"
+	local variant=("${@:3}")
+	if [ -f "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" ]; then
+		diff -q -- "${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" >/dev/null 2>&1
+		if [ "$?" = 0 ]; then
+			add_success "success" "$test_name" "${variant[@]}"
+		elif [ "$?" = 1 ]; then
+			add_fail "unexpected output" "$test_name" "${variant[@]}"
+		else
+			add_fail "internal error: \`diff\` failed." "$test_name" "${variant[@]}"
+		fi
+	else
+		add_fail "expected output missing" "$test_name" "${variant[@]}"
+	fi
+}
+
+##test_one test_name out_dir_name [variant]
+# Executes the specified test and checks the result.
+#
+# @param test_name the filename of the test
+# @param out_dir_name the filename of the output directories
+# @param variant the last argument to pass to the tested program
+test_one() {
+	local test_name="$1"
+	local out_dir_name="$2"
+	local variant=("${@:3}")
+	run_test "${TEST_SOURCE_DIRECTORY}/in/$test_name" "${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" "${variant[@]}"
+	local status="$?"
+	if [ "${status}" != 0 ]; then
+		add_fail "exit status not 0: got ${status}" "$test_name" "${variant[@]}"
+	else
+		test_diff "$@"
+	fi
+}
+
+##add_success message test_name [variant]
+# Adds a success.
+#
+# @param message a short description of the success
+# @param test_name the filename of the test
+# @param variant the last argument to pass to the tested program
+add_success() {
+	if [ "$#" = 3 ]; then
+		echo "- [x] \`$2\` (\`$3\`): $1"
+	else
+		echo "- [x] \`$2\`: $1"
+	fi
+	successes=$((successes + 1))
+}
+
+##add_fail message test_name [variant]
+# Add a failure.
+#
+# @param message a short description of the failure
+# @param test_name the filename of the test
+# @param variant the last argument to pass to the tested program
+add_fail() {
+	if [ "$#" = 3 ]; then
+		echo "- [ ] \`$2\` (\`$3\`): $1"
+	else
+		echo "- [ ] \`$2\`: $1"
+	fi
+	fails=$((fails + 1))
+}
+
+# ##############################################################################
+# Main routine
+
+mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
+	mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+done
+
+for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
+	if [ -e "${test_case}" ]; then
+		test_case="${test_case##*/}"
+		if [ -f "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
+			test_one "${test_case}" out
+		fi
+		for expected_out in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_case}"; do
+			if [ -f "${expected_out}" ]; then
+				out_dir="${expected_out%"/${test_case}"}"
+				out_dir_name="${out_dir##*/}"
+				test_one "${test_case}" "${out_dir_name}"
+			fi
+		done
+	fi
+done
+
+total=$((successes + fails))
+echo
+echo -n "${total} "
+if ((total >= 2)); then
+	echo -n "tests"
+else
+	echo -n "test"
+fi
+echo -n ", ${successes} "
+if ((successes >= 2)); then
+	echo -n "successes"
+else
+	echo -n "success"
+fi
+echo -n ", ${fails} "
+if ((fails >= 2)); then
+	echo -n "fails"
+else
+	echo -n "fail"
+fi
+echo .
+
+if ((fails > 0)); then
+	exit "$E_FAIL"
+fi
