@@ -5,7 +5,8 @@
 build:
 	mkdir -p target/main && \
 	PROJECT_VERSION=$$(git describe --always --tags --match 'version-*') && \
-	sed "s/\\\$$VERSION\\\$$/$${PROJECT_VERSION#version-}/g" src/main/bash/slamtest > target/main/slamtest
+	sed "s/\\\$$VERSION\\\$$/$${PROJECT_VERSION#version-}/g" src/main/bash/slamtest > target/main/slamtest && \
+	chmod u+x target/main/slamtest
 
 test: test-with-lib test-with-src
 
