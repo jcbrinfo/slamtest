@@ -146,9 +146,13 @@ main() {
 	local out_dir
 	local out_dir_name
 
-	mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+	if [ -e "${TEST_TARGET_DIRECTORY}/out" ]; then
+		mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+	fi
 	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
-		mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+		if [ -e "${out_dir}" ]; then
+			mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+		fi
 	done
 
 	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
