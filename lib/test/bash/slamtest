@@ -1,0 +1,138 @@
+#! /bin/bash
+
+# Test the specified command against various inputs.
+#
+# Synopsis: slamtest command_definition
+#
+# This script is designed to be called from the project’s root directory.
+#
+# The only argument is the BASH script included (“sourced”) before the execution
+# of the tests. This script must define `run_test` (see below).
+#
+# `src/test/in` contains input files.
+# `src/test/resources/out` contain expected outputs.
+#
+# Tests’ outputs are stored in `target/test/out`.
+#
+# Returns 0 if and only if all executed tests pass.
+
+# ##############################################################################
+# Paths
+
+# The following paths MUST NOT end with a slash.
+
+readonly TEST_SOURCE_DIRECTORY=src/test/resources
+readonly TEST_TARGET_DIRECTORY=target/test
+
+# ##############################################################################
+# Errors
+
+readonly E_FAIL=1
+
+# ##############################################################################
+# Counters
+
+successes=0
+fails=0
+
+# ##############################################################################
+
+##run_test in_path out_path
+# Executes the specified test.
+#
+# @param in_path the path to the input file
+# @param out_path the path to which the output is redirected
+#run_test() {…}
+
+##test_diff test_name
+# Compares actual and expected outputs of the specified test.
+#
+# Expects the test has already been executed.
+#
+# @param test_name the filename of the test
+test_diff() {
+	local test_name="$1"
+	if [ -f "${TEST_SOURCE_DIRECTORY}/out/$test_name" ]; then
+		diff -q -- "${TEST_TARGET_DIRECTORY}/out/${test_name}" "${TEST_SOURCE_DIRECTORY}/out/$test_name" >/dev/null 2>&1
+		if [ "$?" = 0 ]; then
+			add_success "$@" "success"
+		elif [ "$?" = 1 ]; then
+			add_fail "fail" "$test_name"
+		else
+			add_fail "internal error: \`diff\` failed." "$test_name"
+		fi
+	else
+		add_fail "expected output missing" "$test_name"
+	fi
+}
+
+##test_one test_name
+# Executes the specified test and checks the result.
+#
+# @param test_name the filename of the test
+test_one() {
+	local test_name="$1"
+	run_test "${TEST_SOURCE_DIRECTORY}/in/$test_name" "${TEST_TARGET_DIRECTORY}/out/${test_name}"
+	if [ "$?" != 0 ]; then
+		add_fail "error" "$test_name"
+	else
+		test_diff  "$@"
+	fi
+}
+
+##add_success message test_name
+# Adds a success.
+#
+# @param message a short description of the success
+# @param test_name the filename of the test
+add_success() {
+	echo "- [x] \`$2\`: $1"
+	successes=$((successes + 1))
+}
+
+##add_fail message test_name
+# Add a failure.
+#
+# @param message a short description of the failure
+# @param test_name the filename of the test
+add_fail() {
+	echo "- [ ] \`$2\`: $1"
+	fails=$((fails + 1))
+}
+
+# ##############################################################################
+# Main routine
+
+mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+
+. "$1"
+
+for test in "${TEST_SOURCE_DIRECTORY}"/in/*; do
+	test_one "${test##*/}"
+done
+
+total=$((successes + fails))
+echo
+echo -n "${total} "
+if ((total >= 2)); then
+	echo -n "tests"
+else
+	echo -n "test"
+fi
+echo -n ", ${successes} "
+if ((successes >= 2)); then
+	echo -n "successes"
+else
+	echo -n "success"
+fi
+echo -n ", ${fails} "
+if ((fails >= 2)); then
+	echo -n "fails"
+else
+	echo -n "fail"
+fi
+echo .
+
+if ((fails > 0)); then
+	exit "$E_FAIL"
+fi
