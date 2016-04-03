@@ -4,7 +4,7 @@
 # Generates a versioned copy of the script.
 build:
 	mkdir -p target/main && \
-	PROJECT_VERSION=$$(git describe --always --tags --match 'version-*') && \
+	PROJECT_VERSION=$$(git describe --always --dirty --tags --match 'version-*') && \
 	sed "s/\\\$$VERSION\\\$$/$${PROJECT_VERSION#version-}/g" src/main/bash/slamtest > target/main/slamtest && \
 	chmod u+x target/main/slamtest
 
