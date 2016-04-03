@@ -1,0 +1,7 @@
+- [ ] `exit1`: exit status not 0: got 1
+- [ ] `must_fail`: unexpected output
+- [x] `must_pass`: success
+- [ ] `nothing_expected`: expected output missing
+
+4 tests, 1 success, 3 fails.
+?=1

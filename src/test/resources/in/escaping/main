@@ -1,0 +1,24 @@
+#! /bin/bash
+
+# Note for Markdown:
+# We expect backticks to be converted as XML character references because of a
+# bug in the original Markdown parser. In fact, when you have two backslash-
+# backtick pairs, the backslash looses its meaning. Here is an example:
+#
+# +-------------+-------------------------+
+# | Markdown    | HTML                    |
+# +-------------+-------------------------+
+# | \`a         | <p>`a</p>               |
+# | \`a\`       | <p>\<code>a\</code></p> |
+# | &#96;a&#96; | <p>&#96;a&#96;</p>      |
+# +-------------+-------------------------+
+#
+# Tested with Markdown 1.0.1
+
+test_format() {
+	echo "==$2=="
+	$1 -f $2 true
+}
+test_format $1 c_
+test_format $1 j_
+test_format $1 t_

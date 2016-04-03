@@ -1,0 +1,14 @@
+#! /bin/bash
+test_format() {
+	echo "==$2=="
+	$1 -f $2 xargs expr
+	echo "?=$?"
+}
+test_format $1 __
+test_format $1 c_
+test_format $1 j_
+test_format $1 t_
+test_format $1 _c
+test_format $1 _j
+test_format $1 _l
+test_format $1 _s

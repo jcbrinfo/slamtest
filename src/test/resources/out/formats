@@ -1,0 +1,62 @@
+==__==
+?=1
+==c_==
+"exit1","out",EXIT,0,1,
+"must_fail","out",OUT_MISMATCH,0,0,
+"must_pass","out",OK,0,0,
+"nothing_expected","",NO_EXPECTED_OUT,,,
+?=1
+==j_==
+{
+	"exit1": {
+		"out": {
+			"result": "EXIT_MISMATCH",
+			"expected_exit": 0,
+			"exit": 1,
+			"message": null
+		}
+	},
+	"must_fail": {
+		"out": {
+			"result": "OUT_MISMATCH",
+			"expected_exit": 0,
+			"exit": 0,
+			"message": null
+		}
+	},
+	"must_pass": {
+		"out": {
+			"result": "OK",
+			"expected_exit": 0,
+			"exit": 0,
+			"message": null
+		}
+	},
+	"nothing_expected": {
+		"": {
+			"result": "NO_EXPECTED_OUT"
+			"expected_exit": null,
+			"exit": null,
+			"message": null
+		}
+	}
+}
+?=1
+==t_==
+- [ ] `exit1`: exit status not 0: got 1
+- [ ] `must_fail`: unexpected output
+- [x] `must_pass`: success
+- [ ] `nothing_expected`: expected output missing
+?=1
+==_c==
+4,1,3
+?=1
+==_j==
+{"tests": 4, "successes": 1, "fails": 3}
+?=1
+==_l==
+4 tests, 1 success, 3 fails.
+?=1
+==_s==
+1/4
+?=1

@@ -1,0 +1,2 @@
+#! /bin/bash
+$1 -l run_test.sh foo bar

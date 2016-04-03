@@ -1,0 +1,5 @@
+- [ ] `must_fail`: unexpected output
+- [ ] `must_fail_again`: unexpected output
+
+2 tests, 0 success, 2 fails.
+?=1
