@@ -8,9 +8,9 @@ A simple BASH script to run tests.
 * make, to build SlamTest itself or to run the self-tests
 
 # Usage
-SlamTest is a simple script (`src/main/bash/slamtest`) that run a program
-against a series of inputs and check that the outputs match the expected ones.
-The simpliest way to use this script is to follow the steps below:
+SlamTest is a simple BASH script that runs a program against a series of inputs
+and checks that the outputs match the expected ones. The simpliest way to use
+this script is to follow the steps below:
 
 1. While at root of the SlamTest’s project, invoke `make`.
 2. Copy the `target/main/slamtest` file in your project. For example, you may
