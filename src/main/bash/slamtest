@@ -44,6 +44,15 @@ readonly E_FAIL=1
 readonly E_USAGE=2
 
 # ##############################################################################
+# Options
+
+readonly VERSION_OPTION=v
+readonly HELP_OPTION=h
+
+# The option string for `getopts`.
+readonly OPTION_STRING=":${VERSION_OPTION}"
+
+# ##############################################################################
 # Global variables
 
 # The tested command.
@@ -180,6 +189,14 @@ add_fail() {
 	fails=$((fails + 1))
 }
 
+##echo_error message
+# Writes the specified error message to the standard error output.
+#
+# @param message a short description of the error
+echo_error() {
+	printf "%s: %s\n" "$0" "$1" >&2
+}
+
 ##echo_summary total sucesses fails
 # Writes the summary line.
 #
@@ -212,6 +229,34 @@ echo_summary() {
 	echo .
 }
 
+##echo_version
+# Writes the version.
+echo_version() {
+	printf "%s\n" "${VERSION}"
+}
+
+# ##############################################################################
+# Errors
+
+##raise_invalid_option option_name
+# Raise an error about an invalid option.
+#
+# @param option_name the name of the option (without the dash)
+raise_invalid_option() {
+	raise_usage_error "illegal option: -$1"
+}
+
+##raise_usage_error message
+# Raise an error concerning the arguments passed to the script.
+#
+# @param message a short description of the error
+raise_usage_error() {
+	echo_error "$1"
+	# TODO
+	printf "For more information, run “%s -%s”.\n" "$0" "${HELP_OPTION}"
+	exit "${E_USAGE}"
+}
+
 # ##############################################################################
 # Others
 
@@ -234,13 +279,27 @@ prepare_target() {
 # @param arguments the arguments passed to the program
 main() {
 	local total
-	local test_case
-	local out_dir
+	local option_name
 
+	while getopts "${OPTION_STRING}" option_name; do
+		case $option_name in
+		"${VERSION_OPTION}")
+			echo_version
+			return
+			;;
+		\?)
+			raise_invalid_option "${OPTARG}"
+			;;
+		:)
+			raise_missing_argument "${OPTARG}"
+			;;
+		esac
+	done
+	shift $((OPTIND - 1))
 	tested_command=("$@")
+
 	successes=0
 	fails=0
-
 	prepare_target
 	test_all
 
