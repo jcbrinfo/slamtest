@@ -1,13 +1,11 @@
-#! /usr/bin/make -f
+# The build script for this project.
 # See also: README.md
-
-PROJECT_VERSION="$(git describe --match 'version-*')"
-PROJECT_VERSION="${PROJECT_VERSION#version-}"
 
 # Generates a versioned copy of the script.
 build:
-	mkdir -p target/main
-	sed "s/\$VERSION\$/${PROJECT_VERSION}/g" src/main/bash/slamtest > target/main/slamtest
+	mkdir -p target/main && \
+	PROJECT_VERSION=$$(git describe --always --tags --match 'version-*') && \
+	sed "s/\\\$$VERSION\\\$$/$${PROJECT_VERSION#version-}/g" src/main/bash/slamtest > target/main/slamtest
 
 test: test-with-lib test-with-src
 
