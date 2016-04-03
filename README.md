@@ -39,8 +39,8 @@ Now, SlamTest allows many variations of the aforementioned procedure.
 Sometimes, you may want to run the same test case multiple times, but with
 differents arguments passed to the program. For example, you may need to test
 multiple iterations of the same algorithm. In order to do this, for each variant
-of a test, put an output file in a `src/test/resources/out-{arg}` directory
-instead of the usual `src/test/resources/out` directory, where `{arg}` is the
+of a test, put an output file in a `src/test/resources/out-<arg>` directory
+instead of the usual `src/test/resources/out` directory, where `<arg>` is the
 argument to append to the command specified to the script.
 
 For example, let’s say we have a test case named `a_test` as the only file in
@@ -50,6 +50,12 @@ the `src/test/resources/in` directory. When you launch
 input) if the file `src/test/resources/out/a_test` exists, then
 `target/main/my_program 42` if the file `src/test/resources/out-42/a_test`
 exists.
+
+The same way expected outputs in `src/test/resources/out` are compared with
+actual outputs stored in `target/test/out`, each file in
+`src/test/resources/out-<arg>` are compared with an output that is stored in
+`target/test/out-<arg>`. So, for a file in `src/test/resources/out-42`, the
+actual output produced by the tested program is saved in `target/test/out-42`.
 
 ## End of options
 When parsing the options passed to it, SlamTest follows the POSIX conventions.
