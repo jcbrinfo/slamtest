@@ -146,7 +146,7 @@ main() {
 	local out_dir
 	local out_dir_name
 
-	if [ -e "${TEST_TARGET_DIRECTORY}/out" ]; then
+	if [ -e "${TEST_SOURCE_DIRECTORY}/out" ]; then
 		mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
 	fi
 	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
