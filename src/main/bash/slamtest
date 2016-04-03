@@ -137,52 +137,61 @@ add_fail() {
 	fails=$((fails + 1))
 }
 
-# ##############################################################################
-# Main routine
+##main
+# The main routine.
+main() {
+	local total
+	local test_case
+	local expected_out_path
+	local out_dir
+	local out_dir_name
 
-mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
-for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
-	mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
-done
+	mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
+		mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+	done
 
-for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
-	if [ -e "${test_case}" ]; then
-		test_case="${test_case##*/}"
-		if [ -f "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
-			test_one "${test_case}" out
-		fi
-		for expected_out in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_case}"; do
-			if [ -f "${expected_out}" ]; then
-				out_dir="${expected_out%"/${test_case}"}"
-				out_dir_name="${out_dir##*/}"
-				test_one "${test_case}" "${out_dir_name}"
+	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
+		if [ -e "${test_case}" ]; then
+			test_case="${test_case##*/}"
+			if [ -f "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
+				test_one "${test_case}" out
 			fi
-		done
+			for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_case}"; do
+				if [ -f "${expected_out_path}" ]; then
+					out_dir="${expected_out_path%"/${test_case}"}"
+					out_dir_name="${out_dir##*/}"
+					test_one "${test_case}" "${out_dir_name}"
+				fi
+			done
+		fi
+	done
+
+	total=$((successes + fails))
+	echo
+	echo -n "${total} "
+	if ((total >= 2)); then
+		echo -n "tests"
+	else
+		echo -n "test"
 	fi
-done
+	echo -n ", ${successes} "
+	if ((successes >= 2)); then
+		echo -n "successes"
+	else
+		echo -n "success"
+	fi
+	echo -n ", ${fails} "
+	if ((fails >= 2)); then
+		echo -n "fails"
+	else
+		echo -n "fail"
+	fi
+	echo .
 
-total=$((successes + fails))
-echo
-echo -n "${total} "
-if ((total >= 2)); then
-	echo -n "tests"
-else
-	echo -n "test"
-fi
-echo -n ", ${successes} "
-if ((successes >= 2)); then
-	echo -n "successes"
-else
-	echo -n "success"
-fi
-echo -n ", ${fails} "
-if ((fails >= 2)); then
-	echo -n "fails"
-else
-	echo -n "fail"
-fi
-echo .
+	if ((fails > 0)); then
+		exit "$E_FAIL"
+	fi
+}
 
-if ((fails > 0)); then
-	exit "$E_FAIL"
-fi
+main
