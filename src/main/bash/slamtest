@@ -158,9 +158,9 @@ test_one_input() {
 # @param variant the last argument to pass to the tested program
 add_success() {
 	if [ "$#" = 3 ]; then
-		echo "- [x] \`$2\` (\`$3\`): $1"
+		printf -- '- [x] `%s` (`%s`): %s\n' "$2" "$3" "$1"
 	else
-		echo "- [x] \`$2\`: $1"
+		printf -- '- [x] `%s`: %s\n' "$2" "$1"
 	fi
 	successes=$((successes + 1))
 }
@@ -173,9 +173,9 @@ add_success() {
 # @param variant the last argument to pass to the tested program
 add_fail() {
 	if [ "$#" = 3 ]; then
-		echo "- [ ] \`$2\` (\`$3\`): $1"
+		printf -- '- [ ] `%s` (`%s`): %s\n' "$2" "$3" "$1"
 	else
-		echo "- [ ] \`$2\`: $1"
+		printf -- '- [ ] `%s`: %s\n' "$2" "$1"
 	fi
 	fails=$((fails + 1))
 }
@@ -191,23 +191,23 @@ echo_summary() {
 	local successes="$2"
 	local fails="$3"
 
-	echo -n "${total} "
+	printf "%d " "${total}"
 	if ((total >= 2)); then
-		echo -n "tests"
+		printf "tests"
 	else
-		echo -n "test"
+		printf "test"
 	fi
-	echo -n ", ${successes} "
+	printf ", %d " "${successes}"
 	if ((successes >= 2)); then
-		echo -n "successes"
+		printf "successes"
 	else
-		echo -n "success"
+		printf "success"
 	fi
-	echo -n ", ${fails} "
+	printf ", %d " "${fails}"
 	if ((fails >= 2)); then
-		echo -n "fails"
+		printf "fails"
 	else
-		echo -n "fail"
+		printf "fail"
 	fi
 	echo .
 }
