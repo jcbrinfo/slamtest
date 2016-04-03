@@ -38,19 +38,25 @@ readonly TEST_SOURCE_DIRECTORY=src/test/resources
 readonly TEST_TARGET_DIRECTORY=target/test
 
 # ##############################################################################
-# Errors
+# Exit statuses
 
 readonly E_FAIL=1
 readonly E_USAGE=2
 
 # ##############################################################################
-# Argument parsing and counters
+# Global variables
 
-tested_command=("$@")
-successes=0
-fails=0
+# The tested command.
+tested_command=
+
+# The number of successes.
+successes=
+
+# The number of failures.
+fails=
 
 # ##############################################################################
+# Test execution
 
 ##run_test in_path out_path [variant]
 # Executes the specified test.
@@ -60,6 +66,18 @@ fails=0
 # @param variant the additional argument to pass to the tested program
 run_test() {
 	"${tested_command[@]}" "${@:3}" < "$1" > "$2" 2>&1
+}
+
+##test_all
+# Executes all the tests.
+test_all() {
+	local test_case
+
+	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
+		if [ -e "${test_case}" ]; then
+			test_one_input "${test_case##*/}"
+		fi
+	done
 }
 
 ##test_diff test_name out_dir_name [variant]
@@ -107,6 +125,31 @@ test_one() {
 	fi
 }
 
+##test_one_input test_name
+# Executes all the tests related to the same input file.
+#
+# @param test_name the name of the input file (the name of the test case)
+test_one_input() {
+	local test_name="$1"
+	local expected_out_path
+	local out_dir
+	local out_dir_name
+
+	if [ -e "${TEST_SOURCE_DIRECTORY}"/out/"${test_name}" ]; then
+		test_one "${test_name}" out
+	fi
+	for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_name}"; do
+		if [ -e "${expected_out_path}" ]; then
+			out_dir="${expected_out_path%"/${test_name}"}"
+			out_dir_name="${out_dir##*/}"
+			test_one "${test_name}" "${out_dir_name}"
+		fi
+	done
+}
+
+# ##############################################################################
+# Display
+
 ##add_success message test_name [variant]
 # Adds a success.
 #
@@ -137,42 +180,17 @@ add_fail() {
 	fails=$((fails + 1))
 }
 
-##main
-# The main routine.
-main() {
-	local total
-	local test_case
-	local expected_out_path
-	local out_dir
-	local out_dir_name
+##echo_summary total sucesses fails
+# Writes the summary line.
+#
+# @param total the total number of tests
+# @param successes the number of successes
+# @param fails the number of failures
+echo_summary() {
+	local total="$1"
+	local successes="$2"
+	local fails="$3"
 
-	if [ -e "${TEST_SOURCE_DIRECTORY}/out" ]; then
-		mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
-	fi
-	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
-		if [ -e "${out_dir}" ]; then
-			mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
-		fi
-	done
-
-	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
-		if [ -e "${test_case}" ]; then
-			test_case="${test_case##*/}"
-			if [ -e "${TEST_SOURCE_DIRECTORY}"/out/"${test_case}" ]; then
-				test_one "${test_case}" out
-			fi
-			for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_case}"; do
-				if [ -e "${expected_out_path}" ]; then
-					out_dir="${expected_out_path%"/${test_case}"}"
-					out_dir_name="${out_dir##*/}"
-					test_one "${test_case}" "${out_dir_name}"
-				fi
-			done
-		fi
-	done
-
-	total=$((successes + fails))
-	echo
 	echo -n "${total} "
 	if ((total >= 2)); then
 		echo -n "tests"
@@ -192,10 +210,47 @@ main() {
 		echo -n "fail"
 	fi
 	echo .
+}
+
+# ##############################################################################
+# Others
+
+##prepare_target
+# Creates the directories for the generated files.
+prepare_target() {
+	if [ -e "${TEST_SOURCE_DIRECTORY}/out" ]; then
+		mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+	fi
+	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
+		if [ -e "${out_dir}" ]; then
+			mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+		fi
+	done
+}
+
+##main arguments…
+# The main routine.
+#
+# @param arguments the arguments passed to the program
+main() {
+	local total
+	local test_case
+	local out_dir
+
+	tested_command=("$@")
+	successes=0
+	fails=0
+
+	prepare_target
+	test_all
+
+	total=$((successes + fails))
+	echo
+	echo_summary "${total}" "${successes}" "${fails}"
 
 	if ((fails > 0)); then
-		exit "$E_FAIL"
+		exit "${E_FAIL}"
 	fi
 }
 
-main
+main "$@"
