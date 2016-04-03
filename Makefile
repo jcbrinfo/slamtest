@@ -11,8 +11,8 @@ test: test-with-lib test-with-src
 
 # Tests the current version with an older (simplier) version.
 test-with-lib: build
-	lib/test/bash/slamtest src/test/bash/self_test.sh target/main/slamtest
+	lib/test/bash/slamtest src/test/bash/self_test.sh
 
 # Tests the current version with itself.
 test-with-src: build
-	target/main/slamtest -l src/test/bash/self_test.sh target/main/slamtest
+	target/main/slamtest -l src/test/bash/self_test.sh
