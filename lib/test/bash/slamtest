@@ -55,7 +55,7 @@ test_diff() {
 	if [ -f "${TEST_SOURCE_DIRECTORY}/out/$test_name" ]; then
 		diff -q -- "${TEST_TARGET_DIRECTORY}/out/${test_name}" "${TEST_SOURCE_DIRECTORY}/out/$test_name" >/dev/null 2>&1
 		if [ "$?" = 0 ]; then
-			add_success "$@" "success"
+			add_success "success" "$test_name"
 		elif [ "$?" = 1 ]; then
 			add_fail "fail" "$test_name"
 		else
