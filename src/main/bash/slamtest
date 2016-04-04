@@ -15,19 +15,21 @@
 # Returns 0 if and only if all executed tests pass.
 
 VERSION='$VERSION$'
-LICENSE='Copyright (c) 2016, jcbrinfo <jcbrinfo@users.noreply.github.com>.
+AUTHOR='jcbrinfo <jcbrinfo@users.noreply.github.com>'
+LICENSE='
+        Copyright (c) 2016, jcbrinfo <jcbrinfo@users.noreply.github.com>.
 
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
+        Permission to use, copy, modify, and/or distribute this software for any
+        purpose with or without fee is hereby granted, provided that the above
+        copyright notice and this permission notice appear in all copies.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.'
+        THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+        WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+        MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+        ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+        WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+        ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+        OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.'
 
 # ##############################################################################
 # Paths
@@ -46,11 +48,11 @@ readonly E_USAGE=2
 # ##############################################################################
 # Options
 
-readonly VERSION_OPTION=v
 readonly HELP_OPTION=h
+readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
-readonly OPTION_STRING=":${VERSION_OPTION}"
+readonly OPTION_STRING=":${HELP_OPTION}${VERSION_OPTION}"
 
 # ##############################################################################
 # Global variables
@@ -236,6 +238,124 @@ echo_version() {
 }
 
 # ##############################################################################
+# Built-in manual
+
+##echo_help
+# Writes the built-in manual.
+echo_help() {
+	echo "\
+NAME
+        slamtest — run tests
+
+SYNOPSIS
+        $0 tested_command…
+        $0 -h
+        $0 -v
+
+DESCRIPTION
+        SlamTest is a simple BASH script that runs a program against a series
+        of inputs and checks that the outputs match the expected ones. This
+        script should be invoked from the root directory of the project to test.
+        For a explanation of how to describe the tests, see the “INPUT FILES”
+        section. For the location of the actual outputs of the tested program,
+        see “OUTPUT FILES”.
+
+        The name of each test case reflects the name of the input file used for
+        this test case.
+
+OPTIONS
+        -h      Display the built-in manual (this manual).
+
+        -v      Display the version information.
+
+OPERANDS
+        tested_command
+                The command to test.
+
+STDIN
+        Not used.
+
+INPUT FILES
+        <definition directory>
+                The directory containing the test’s definitions.
+                (“${TEST_SOURCE_DIRECTORY}” by default)
+
+        <definition directory>/in/<test case name>
+                The input for the test case named “<test case name>“.
+
+        <definition directory>/out/<test case name>
+                The expected output for the test case named “<test case name>”,
+                when the tested command is invoked without any additional
+                argument.
+
+        <definition directory>/out-<arg>/<test case name>
+                The expected output for the test case named “<test case name>”,
+                when the “<arg>” argument is appended to the tested command.
+
+        For each test case found in “<definition directory>/in”, SlamTest looks
+        for any file with the same name in “<definition directory>/out” and/or
+        “<definition directory>/out-*”. For each output file found, a test is
+        run using the found file as the expected output. When the expected
+        output is located in a “<definition directory>/out-<arg>” directory,
+        “<arg>” is added as an argument to the end of the tested command.
+
+ENVIRONMENT VARIABLES
+        None.
+
+STDOUT
+        Except when run using the “-h” or “-v” option, a list the results is
+        written. This list is formatted as task list using the GitHub Flavored
+        Markdown. Then, a summary line of the form
+        “<t> tests, <s> sucesses, <f> fails.” is written.
+
+STDERR
+        The standard error output of the script is reserved for writting
+        diagnostic messages when SlamTest is incorrectly used.
+
+OUTPUT FILES
+        <target directory>
+                The directory containing the files generated during the tests.
+                (“${TEST_TARGET_DIRECTORY}” by default)
+
+        <target directory>/out/<test case name>
+                The actual output for the test case named “<test case name>”,
+                when the tested command is invoked without any additional
+                argument. Compared against
+                “<definition directory>/out/<test case name>”.
+
+        <target directory>/out-<arg>/<test case name>
+                The actual output for the test case named “<test case name>”,
+                when the “<arg>” argument is appended to the tested command.
+                Compared against
+                “<definition directory>/out-<arg>/<test case name>”.
+
+
+EXIT STATUS
+        0       All tests pass.
+
+        1       At least one test fail.
+
+        2       The script is not used correctly.
+
+EXAMPLES
+        $0 java -cp target/main com.example.MyProgram
+                Test the command “java -cp target/main com.example.MyProgram”,
+                that is the usual command to run the Java class
+                “target/main/com/example/MyProgram.class”.
+
+AUTHOR
+        ${AUTHOR}
+
+LICENSING${LICENSE}
+
+SEE ALSO
+        diff
+
+        The “README.md” file of the SlamTest’s project.\
+"
+}
+
+# ##############################################################################
 # Errors
 
 ##raise_invalid_option option_name
@@ -252,7 +372,6 @@ raise_invalid_option() {
 # @param message a short description of the error
 raise_usage_error() {
 	echo_error "$1"
-	# TODO
 	printf "For more information, run “%s -%s”.\n" "$0" "${HELP_OPTION}"
 	exit "${E_USAGE}"
 }
@@ -283,6 +402,10 @@ main() {
 
 	while getopts "${OPTION_STRING}" option_name; do
 		case $option_name in
+		"${HELP_OPTION}")
+			echo_help
+			return
+			;;
 		"${VERSION_OPTION}")
 			echo_version
 			return
