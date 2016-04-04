@@ -22,7 +22,7 @@ this script is to follow the steps below:
    of test case.
 4. To run all the test cases, launch the previously copied script from the root
    directory of your project, with the command to test as the arguments.
-   Example: `lib/test/bash/slamtest python3 target/main/my_program.py`
+   Example: `lib/test/bash/slamtest java -cp target/main com.example.MyProgram`
 
 The script will output a list of the results of every test, followed with a
 count of the success and failures. The list is formatted as a task list written
