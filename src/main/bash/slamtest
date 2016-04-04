@@ -103,10 +103,11 @@ test_diff() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	if [ -e "${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" ]; then
-		diff -q -- "${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" \
-				"${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}" \
-				>/dev/null 2>&1
+	local expected="${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}"
+	local actual="${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}"
+
+	if [ -e "${actual}" ]; then
+		diff -q -- "${actual}" "${expected}" >/dev/null 2>&1
 		if [ "$?" = 0 ]; then
 			add_success "success" "${test_name}" "${variant[@]}"
 		elif [ "$?" = 1 ]; then
@@ -116,7 +117,8 @@ test_diff() {
 					"${variant[@]}"
 		fi
 	else
-		add_fail "expected output missing" "${test_name}" "${variant[@]}"
+		# TODO Test this case.
+		add_fail "actual output missing" "${test_name}" "${variant[@]}"
 	fi
 }
 
@@ -152,16 +154,24 @@ test_one_input() {
 	local out_dir
 	local out_dir_name
 
+	# Does this test case has at least one expected output?
+	local has_out=0
+
 	if [ -e "${TEST_SOURCE_DIRECTORY}"/out/"${test_name}" ]; then
+		has_out=1
 		test_one "${test_name}" out
 	fi
 	for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_name}"; do
 		if [ -e "${expected_out_path}" ]; then
+			has_out=1
 			out_dir="${expected_out_path%"/${test_name}"}"
 			out_dir_name="${out_dir##*/}"
 			test_one "${test_name}" "${out_dir_name}"
 		fi
 	done
+	if [ "${has_out}" = 0 ]; then
+		add_fail "expected output missing" "${test_name}"
+	fi
 }
 
 # ##############################################################################
