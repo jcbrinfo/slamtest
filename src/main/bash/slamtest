@@ -166,7 +166,7 @@ test_one_input() {
 			has_out=1
 			out_dir="${expected_out_path%"/${test_name}"}"
 			out_dir_name="${out_dir##*/}"
-			test_one "${test_name}" "${out_dir_name}"
+			test_one "${test_name}" "${out_dir_name}" "${out_dir_name#out-}"
 		fi
 	done
 	if [ "${has_out}" = 0 ]; then
