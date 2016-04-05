@@ -50,10 +50,13 @@ readonly E_USAGE=2
 
 readonly HELP_OPTION=h
 readonly LOAD_MODULE_OPTION=l
+readonly TEST_CASE_OPTION=t
 readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
-readonly OPTION_STRING=":${HELP_OPTION}${LOAD_MODULE_OPTION}:${VERSION_OPTION}"
+readonly OPTION_STRING=":\
+${HELP_OPTION}${LOAD_MODULE_OPTION}:${TEST_CASE_OPTION}:${VERSION_OPTION}\
+"
 
 # ##############################################################################
 # Global variables
@@ -264,7 +267,8 @@ NAME
         slamtest — run tests
 
 SYNOPSIS
-        $0 [-${LOAD_MODULE_OPTION} <script’s path>] [tested_command…]
+        $0 [-${LOAD_MODULE_OPTION} <script’s path>] \\
+            [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
         $0 -${HELP_OPTION}
         $0 -${VERSION_OPTION}
 
@@ -286,6 +290,13 @@ OPTIONS
                 Include (“source”) the specified BASH script. For more
                 information on how to use this feature, see the “Redefining how
                 to run a test” subsection of the “EXTENDED DESCRIPTION”.
+
+        -${TEST_CASE_OPTION} <test case name>
+                Instead of running all test cases found, run only the specified
+                one.
+
+                Note: A test case may contain more than one test. For details,
+                see “INPUT FILE”.
 
         -${VERSION_OPTION}      Display the version information.
 
@@ -471,6 +482,7 @@ main() {
 	local total
 	local option_name
 	local module_loaded=0
+	local test_case=
 
 	while getopts "${OPTION_STRING}" option_name; do
 		case $option_name in
@@ -481,6 +493,9 @@ main() {
 		"${LOAD_MODULE_OPTION}")
 			load_module "${OPTARG}"
 			module_loaded=1
+			;;
+		"${TEST_CASE_OPTION}")
+			test_case="${OPTARG}"
 			;;
 		"${VERSION_OPTION}")
 			echo_version
@@ -504,7 +519,11 @@ main() {
 	successes=0
 	fails=0
 	prepare_target
-	test_all
+	if [ -z "${test_case}" ]; then
+		test_all
+	else
+		test_one_input "${test_case}"
+	fi
 
 	total=$((successes + fails))
 	echo
