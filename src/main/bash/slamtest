@@ -118,7 +118,6 @@ test_diff() {
 					"${variant[@]}"
 		fi
 	else
-		# TODO Test this case.
 		add_fail "actual output missing" "${test_name}" "${variant[@]}"
 	fi
 }
