@@ -434,6 +434,14 @@ raise_invalid_option() {
 	raise_usage_error "illegal option: -$1"
 }
 
+##raise_missing_argument option_name
+# Raise an error about a missing option-argument.
+#
+# @param option_name the name of the option (without the dash)
+raise_missing_argument() {
+	raise_usage_error "option -$1 requires an argument"
+}
+
 ##raise_missing_command
 # Raise an error because the command to test is missing.
 raise_missing_command() {
