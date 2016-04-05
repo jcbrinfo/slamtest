@@ -49,10 +49,11 @@ readonly E_USAGE=2
 # Options
 
 readonly HELP_OPTION=h
+readonly LOAD_MODULE_OPTION=l
 readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
-readonly OPTION_STRING=":${HELP_OPTION}${VERSION_OPTION}"
+readonly OPTION_STRING=":${HELP_OPTION}${LOAD_MODULE_OPTION}:${VERSION_OPTION}"
 
 # ##############################################################################
 # Global variables
@@ -264,9 +265,9 @@ NAME
         slamtest — run tests
 
 SYNOPSIS
-        $0 tested_command…
-        $0 -h
-        $0 -v
+        $0 [-${LOAD_MODULE_OPTION} <script’s path>] [tested_command…]
+        $0 -${HELP_OPTION}
+        $0 -${VERSION_OPTION}
 
 DESCRIPTION
         SlamTest is a simple BASH script that runs a program against a series
@@ -280,9 +281,14 @@ DESCRIPTION
         this test case.
 
 OPTIONS
-        -h      Display the built-in manual (this manual).
+        -${HELP_OPTION}      Display the built-in manual (this manual).
 
-        -v      Display the version information.
+        -${LOAD_MODULE_OPTION} <script’s path>
+                Include (“source”) the specified BASH script. For more
+                information on how to use this feature, see the “Redefining how
+                to run a test” subsection of the “EXTENDED DESCRIPTION”.
+
+        -${VERSION_OPTION}      Display the version information.
 
 OPERANDS
         tested_command
@@ -345,6 +351,42 @@ OUTPUT FILES
                 Compared against
                 “<definition directory>/out-<arg>/<test case name>”.
 
+EXTENDED DESCRIPTION
+        ===Redefining how to run a test===
+        By default, SlamTest runs the specified command by redirecting the
+        standard input and outputs, and append an additional argument when
+        needed (see “INPUT FILES”). However, there are some situation were the
+        tested program need to be invoked differently. May be the input file are
+        actualy directories, may be the program requires the filenames as
+        arguments… To handle these cases, SlamTest has the “-${LOAD_MODULE_OPTION}” that takes the
+        path of a BASH script that defines the “run_test” function.
+
+        The “run_test” is called to run each test and takes at most 3 arguments,
+        with the last one being optional. The arguments are, respectively:
+
+        1. The path to the input file.
+
+        2. The path to which the output is redirected.
+
+        3. The additional argument to pass to the tested program (see “INPUT
+           FILES”).
+
+        The list of the arguments passed to SlamTest that are not options (that
+        is the tested command if you do not redefine “run_test”) is stored as an
+        array in the “tested_command” global variable.
+
+        Here is the default definition of “run_test”:
+
+                run_test() {
+	                \"\${tested_command[@]}\" \"\${@:3}\" \\
+	                        < \"\$1\" > \"\$2\" 2>&1
+                }
+
+
+        Note: The script specified to the “-${LOAD_MODULE_OPTION}” is included (“sourced”) directly
+        by SlamTest’s script. So, avoid defining any global variable (or BASH
+        option) other than “run_test” in the included script in order to avoid
+        disturbing the inner workings of main script.
 
 EXIT STATUS
         0       All tests pass.
@@ -382,6 +424,12 @@ raise_invalid_option() {
 	raise_usage_error "illegal option: -$1"
 }
 
+##raise_missing_command
+# Raise an error because the command to test is missing.
+raise_missing_command() {
+	raise_usage_error "command missing"
+}
+
 ##raise_usage_error message
 # Raise an error concerning the arguments passed to the script.
 #
@@ -408,6 +456,14 @@ prepare_target() {
 	done
 }
 
+##load_module script_path
+# Loads (“sources”) the specified BASH script.
+#
+# @param script_path the path to the script
+load_module() {
+	. "$1"
+}
+
 ##main arguments…
 # The main routine.
 #
@@ -415,12 +471,17 @@ prepare_target() {
 main() {
 	local total
 	local option_name
+	local module_loaded=0
 
 	while getopts "${OPTION_STRING}" option_name; do
 		case $option_name in
 		"${HELP_OPTION}")
 			echo_help
 			return
+			;;
+		"${LOAD_MODULE_OPTION}")
+			load_module "${OPTARG}"
+			module_loaded=1
 			;;
 		"${VERSION_OPTION}")
 			echo_version
@@ -436,6 +497,10 @@ main() {
 	done
 	shift $((OPTIND - 1))
 	tested_command=("$@")
+
+	if [ "${module_loaded}" = 0 ] && [ "${#tested_command}" = 0 ]; then
+		raise_missing_command
+	fi
 
 	successes=0
 	fails=0
