@@ -263,6 +263,12 @@ By default, finding no expected output at all for a given test case (either in
 `src/test/resources/out` or in `src/test/resources/out-*`) count as a fail. If
 you want to silently skip the test case instead, use the `-s` flag.
 
+## Ignored files
+Because SlamTest uses a glob pattern that does not explicitly include files
+whose name begins with a dot, the test cases with that kind of name are silently
+ignored (except when explicitly specified with the `-t` option). You may exploit
+this behaviour at your advantage (or not)…
+
 ## Exit status
 To make it easy to combine SlamTest with your other tools, the meaning of the
 following exit statuses is fixed:
