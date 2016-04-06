@@ -109,15 +109,17 @@ test_diff() {
 	local variant=("${@:3}")
 	local expected="${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}"
 	local actual="${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}"
+	local diff_status
 
 	if [ -e "${actual}" ]; then
 		diff -q -- "${actual}" "${expected}" >/dev/null 2>&1
-		if [ "$?" = 0 ]; then
+		diff_status="$?"
+		if [ "${diff_status}" = 0 ]; then
 			add_success "success" "${test_name}" "${variant[@]}"
-		elif [ "$?" = 1 ]; then
+		elif [ "${diff_status}" = 1 ]; then
 			add_fail "unexpected output" "${test_name}" "${variant[@]}"
 		else
-			add_fail "internal error: \`diff\` failed." "${test_name}" \
+			add_fail "internal error: \`diff\` failed" "${test_name}" \
 					"${variant[@]}"
 		fi
 	else
