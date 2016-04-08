@@ -1,18 +1,7 @@
 #! /bin/bash
 # SlamTest, version $VERSION$.
 # 
-# Test the specified command against various inputs.
-#
-# This script is designed to be called from the project’s root directory.
-#
-# `src/test/in` contains input files.
-# `src/test/resources/out` and/or `src/test/resources/out-*` contain expected
-# outputs. For `src/test/resources/out-<variant>`, `<variant>` is
-# added to the end of the tested command.
-#
-# Tests’ outputs are stored in `target/test/`.
-#
-# Returns 0 if and only if all executed tests pass.
+# For more information, run `slamtest -h`.
 
 VERSION='$VERSION$'
 AUTHOR='jcbrinfo <jcbrinfo@users.noreply.github.com>'
