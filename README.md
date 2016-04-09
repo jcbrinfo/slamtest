@@ -12,7 +12,7 @@ SlamTest is a simple BASH script that runs a program against a series of inputs
 and checks that the outputs match the expected ones. The simpliest way to use
 this script is to follow the steps below:
 
-1. While at root of the SlamTest’s project, invoke `make`.
+1. While at root of the SlamTest’s project, invoke `make` (or `make all`).
 2. Copy the `target/main/slamtest` file in your project. For example, you may
    place this file in the `lib/test/bash` directory of your project. Do not
    forget to make the file executable (`chmod u+x lib/test/bash/slamtest`).
@@ -316,8 +316,12 @@ To show the current version of the script, use the `-v` option.
 
 # Running the self-tests
 To test the current version using the older (simplier) version located in
-`lib/test/bash/`, run `make test-with-lib`. To test the current version using
-itself, run `make test-with-src`. To run both targets, use `make test`.
+`lib/test/bash/`, run `make check-with-lib`. To test the current version using
+itself, run `make check-with-src`. To run both targets, use `make check`.
+
+Note: As specified by GNU Coding Standards, theses targets do not have `all` as
+a dependency. So, to build the script and run all the self-tests in one command,
+you need to invoke `make all check`.
 
 Note: Because we test things like backslashes in filenames, some tests are
 incompatible with Microsoft’s systems.
