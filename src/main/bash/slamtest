@@ -6,19 +6,19 @@
 VERSION='$VERSION$'
 AUTHOR='jcbrinfo <jcbrinfo@users.noreply.github.com>'
 LICENSE='
-        Copyright (c) 2016, jcbrinfo <jcbrinfo@users.noreply.github.com>.
+       Copyright (c) 2016, jcbrinfo <jcbrinfo@users.noreply.github.com>.
 
-        Permission to use, copy, modify, and/or distribute this software for any
-        purpose with or without fee is hereby granted, provided that the above
-        copyright notice and this permission notice appear in all copies.
+       Permission to use, copy, modify, and/or distribute this software for
+       any purpose with or without fee is hereby granted, provided that the
+       above copyright notice and this permission notice appear in all copies.
 
-        THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-        WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-        MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-        ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-        WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-        ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-        OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.'
+       THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANT-
+       IES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+       MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+       ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+       WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+       OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.'
 
 # ##############################################################################
 # Paths
@@ -255,168 +255,168 @@ echo_version() {
 echo_help() {
 	echo "\
 NAME
-        slamtest — run tests
+       slamtest — run tests
 
 SYNOPSIS
-        $0 [-${LOAD_MODULE_OPTION} <script’s path>] \\
-            [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
-        $0 -${HELP_OPTION}
-        $0 -${VERSION_OPTION}
+       $0 [-${LOAD_MODULE_OPTION} <script’s path>] \\
+           [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
+       $0 -${HELP_OPTION}
+       $0 -${VERSION_OPTION}
 
 DESCRIPTION
-        SlamTest is a simple BASH script that runs a program against a series
-        of inputs and checks that the outputs match the expected ones. This
-        script should be invoked from the root directory of the project to test.
-        For a explanation of how to describe the tests, see the “INPUT FILES”
-        section. For the location of the actual outputs of the tested program,
-        see “OUTPUT FILES”.
+       SlamTest is a simple BASH script that runs a program against a series
+       of inputs and checks that the outputs match the expected ones. This
+       script should be invoked from the root directory of the project to
+       test. For a explanation of how to describe the tests, see the “INPUT
+       FILES” section. For the location of the actual outputs of the tested
+       program, see “OUTPUT FILES”.
 
-        The name of each test case reflects the name of the input file used for
-        this test case.
+       The name of each test case reflects the name of the input file used for
+       this test case.
 
 OPTIONS
-        -${HELP_OPTION}      Display the built-in manual (this manual).
+       -${HELP_OPTION}     Display the built-in manual (this manual).
 
-        -${LOAD_MODULE_OPTION} <script’s path>
-                Include (“source”) the specified BASH script. For more
-                information on how to use this feature, see the “Redefining how
-                to run a test” subsection of the “EXTENDED DESCRIPTION”.
+       -${LOAD_MODULE_OPTION} <script’s path>
+              Include (“source”) the specified BASH script. For more informa-
+              tion on how to use this feature, see the “Redefining how to run
+              a test” subsection of the “EXTENDED DESCRIPTION”.
 
-        -${TEST_CASE_OPTION} <test case name>
-                Instead of running all test cases found, run only the specified
-                one.
+       -${TEST_CASE_OPTION} <test case name>
+              Instead of running all test cases found, run only the specified
+              one.
 
-                Note: A test case may contain more than one test. For details,
-                see “INPUT FILE”.
+              Note: A test case may contain more than one test. For details,
+              see “INPUT FILE”.
 
-        -${VERSION_OPTION}      Display the version information.
+       -${VERSION_OPTION}     Display the version information.
 
 OPERANDS
-        tested_command
-                The command to test.
+       tested_command
+              The command to test.
 
 STDIN
-        Not used.
+       Not used.
 
 INPUT FILES
-        <definition directory>
-                The directory containing the test’s definitions.
-                (“${TEST_SOURCE_DIRECTORY}” by default)
+       <definition directory>
+              The directory containing the test’s definitions.
+              (“${TEST_SOURCE_DIRECTORY}” by default)
 
-        <definition directory>/in/<test case name>
-                The input for the test case named “<test case name>“.
+       <definition directory>/in/<test case name>
+              The input for the test case named “<test case name>“.
 
-        <definition directory>/out/<test case name>
-                The expected output for the test case named “<test case name>”,
-                when the tested command is invoked without any additional
-                argument.
+       <definition directory>/out/<test case name>
+              The expected output for the test case named “<test case name>”,
+              when the tested command is invoked without any additional argu-
+              ment.
 
-        <definition directory>/out-<arg>/<test case name>
-                The expected output for the test case named “<test case name>”,
-                when the “<arg>” argument is appended to the tested command.
+       <definition directory>/out-<arg>/<test case name>
+              The expected output for the test case named “<test case name>”,
+              when the “<arg>” argument is appended to the tested command.
 
-        For each test case found in “<definition directory>/in”, SlamTest looks
-        for any file with the same name in “<definition directory>/out” and/or
-        “<definition directory>/out-*”. For each output file found, a test is
-        run using the found file as the expected output. When the expected
-        output is located in a “<definition directory>/out-<arg>” directory,
-        “<arg>” is added as an argument to the end of the tested command.
+       For each test case found in “<definition directory>/in”, SlamTest looks
+       for any file with the same name in “<definition directory>/out” and/or
+       “<definition directory>/out-*”. For each output file found, a test is
+       run using the found file as the expected output. When the expected
+       output is located in a “<definition directory>/out-<arg>” directory,
+       “<arg>” is added as an argument to the end of the tested command.
 
 ENVIRONMENT VARIABLES
-        None.
+       None.
 
 STDOUT
-        Except when run using the “-h” or “-v” option, a list the results is
-        written. This list is formatted as task list using the GitHub Flavored
-        Markdown. Then, a summary line of the form
-        “<t> tests, <s> sucesses, <f> fails.” is written.
+       Except when run using the “-h” or “-v” option, a list the results is
+       written. This list is formatted as task list using the GitHub Flavored
+       Markdown. Then, a summary line of the form
+       “<t> tests, <s> sucesses, <f> fails.” is written.
 
 STDERR
-        The standard error output of the script is reserved for writting
-        diagnostic messages when SlamTest is incorrectly used.
+       The standard error output of the script is reserved for writting diag-
+       nostic messages when SlamTest is incorrectly used.
 
 OUTPUT FILES
-        <target directory>
-                The directory containing the files generated during the tests.
-                (“${TEST_TARGET_DIRECTORY}” by default)
+       <target directory>
+              The directory containing the files generated during the tests.
+              (“${TEST_TARGET_DIRECTORY}” by default)
 
-        <target directory>/out/<test case name>
-                The actual output for the test case named “<test case name>”,
-                when the tested command is invoked without any additional
-                argument. Compared against
-                “<definition directory>/out/<test case name>”.
+       <target directory>/out/<test case name>
+              The actual output for the test case named “<test case name>”,
+              when the tested command is invoked without any additional argu-
+              ment. Compared against
+              “<definition directory>/out/<test case name>”.
 
-        <target directory>/out-<arg>/<test case name>
-                The actual output for the test case named “<test case name>”,
-                when the “<arg>” argument is appended to the tested command.
-                Compared against
-                “<definition directory>/out-<arg>/<test case name>”.
+       <target directory>/out-<arg>/<test case name>
+              The actual output for the test case named “<test case name>”,
+              when the “<arg>” argument is appended to the tested command.
+              Compared against
+              “<definition directory>/out-<arg>/<test case name>”.
 
-        Note: Even if this script creates the required directories automaticaly,
-        it does not use the more robust cross-platform way to do this: it simply
-        uses “mkdir -p”. If your build system already offer a more portable way
-        to create missing directories (like Autoconf and Automake), use it
-        instead. For more details, see <http://bit.ly/1VeuAUJ>.
+       Note: Even if this script creates the required directories automatica-
+       ly, it does not use the more robust cross-platform way to do this: it
+       simply uses “mkdir -p”. If your build system already offer a more por-
+       table way to create missing directories (like Autoconf and Automake),
+       rely on it instead. For more details, see <http://bit.ly/1VeuAUJ>.
 
 EXTENDED DESCRIPTION
-        ===Redefining how to run a test===
-        By default, SlamTest runs the specified command by redirecting the
-        standard input and outputs, and append an additional argument when
-        needed (see “INPUT FILES”). However, there are some situation were the
-        tested program need to be invoked differently. May be the input file are
-        actualy directories, may be the program requires the filenames as
-        arguments… To handle these cases, SlamTest has the “-${LOAD_MODULE_OPTION}” that takes the
-        path of a BASH script that defines the “run_test” function.
+   Redefining how to run a test
+       By default, SlamTest runs the specified command by redirecting the
+       standard input and outputs, and append an additional argument when
+       needed (see “INPUT FILES”). However, there are some situation were the
+       tested program need to be invoked differently. May be the input file
+       are actualy directories, may be the program requires the filenames as
+       arguments… To handle these cases, SlamTest has the “-${LOAD_MODULE_OPTION}” that takes the
+       path of a BASH script that defines the “run_test” function.
 
-        The “run_test” is called to run each test and takes at most 3 arguments,
-        with the last one being optional. The arguments are, respectively:
+       The “run_test” is called to run each test and takes at most 3
+       arguments, with the last one being optional. The arguments are,
+       respectively:
 
-        1. The path to the input file.
+       1. The path to the input file.
 
-        2. The path to which the output is redirected.
+       2. The path to which the output is redirected.
 
-        3. The additional argument to pass to the tested program (see “INPUT
-           FILES”).
+       3. The additional argument to pass to the tested program (see “INPUT
+          FILES”).
 
-        The list of the arguments passed to SlamTest that are not options (that
-        is the tested command if you do not redefine “run_test”) is stored as an
-        array in the “tested_command” global variable.
+       The list of the arguments passed to SlamTest that are not options (that
+       is the tested command if you do not redefine “run_test”) is stored as
+       an array in the “tested_command” global variable.
 
-        Here is the default definition of “run_test”:
+       Here is the default definition of “run_test”:
 
-                run_test() {
-	                \"\${tested_command[@]}\" \"\${@:3}\" \\
-	                        < \"\$1\" > \"\$2\" 2>&1
-                }
+              run_test() {
+	              \"\${tested_command[@]}\" \"\${@:3}\" < \"\$1\" > \"\$2\" 2>&1
+              }
 
 
-        Note: The script specified to the “-${LOAD_MODULE_OPTION}” is included (“sourced”) directly
-        by SlamTest’s script. So, avoid defining any global variable (or BASH
-        option) other than “run_test” in the included script in order to avoid
-        disturbing the inner workings of main script.
+       Note: The script specified to the “-${LOAD_MODULE_OPTION}” is included (“sourced”) directly
+       by SlamTest’s script. So, avoid defining any global variable (or BASH
+       option) other than “run_test” in the included script in order to avoid
+       disturbing the inner workings of main script.
 
 EXIT STATUS
-        0       All tests pass.
+       0      All tests pass.
 
-        1       At least one test fail.
+       1      At least one test fails.
 
-        2       The script is not used correctly.
+       2      The script is not used correctly.
 
 EXAMPLES
-        $0 java -cp target/main com.example.MyProgram
-                Test the command “java -cp target/main com.example.MyProgram”,
-                that is the usual command to run the Java class
-                “target/main/com/example/MyProgram.class”.
+       $0 java -cp target/main com.example.MyProgram
+              Test the command “java -cp target/main com.example.MyProgram”,
+              that is the usual command to run the Java class
+              “target/main/com/example/MyProgram.class”.
 
 AUTHOR
-        ${AUTHOR}
+       ${AUTHOR}
 
 LICENSING${LICENSE}
 
 SEE ALSO
-        diff
+       diff
 
-        The “README.md” file of the SlamTest’s project.\
+       The “README.md” file of the SlamTest’s project.\
 "
 }
 
