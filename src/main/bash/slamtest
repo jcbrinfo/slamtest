@@ -490,7 +490,7 @@ main() {
 	local test_case=
 
 	while getopts "${OPTION_STRING}" option_name; do
-		case $option_name in
+		case "${option_name}" in
 		"${HELP_OPTION}")
 			echo_help
 			return
