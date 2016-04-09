@@ -352,6 +352,12 @@ OUTPUT FILES
                 Compared against
                 “<definition directory>/out-<arg>/<test case name>”.
 
+        Note: Even if this script creates the required directories automaticaly,
+        it does not use the more robust cross-platform way to do this: it simply
+        uses “mkdir -p”. If your build system already offer a more portable way
+        to create missing directories (like Autoconf and Automake), use it
+        instead. For more details, see <http://bit.ly/1VeuAUJ>.
+
 EXTENDED DESCRIPTION
         ===Redefining how to run a test===
         By default, SlamTest runs the specified command by redirecting the
