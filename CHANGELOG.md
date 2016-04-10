@@ -23,3 +23,4 @@ to the differents versions that were included in various projects.
 * Do not use the `-q` option of `diff` (non-POSIX).
 * Fix various quoting mistakes.
 * Replace `diff` by `cmp` when comparing regular files.
+* Execute the specified command without considering the defined functions.
