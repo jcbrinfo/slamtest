@@ -284,6 +284,7 @@ To display the embeded manual, use the `-h` option.
 To show the current version of the script, use the `-v` option.
 
 # Project structure
+* `CHANGELOG.md`: The project’s change log.
 * `COPYING`: The project’s license.
 * `lib/test/bash/slamtest`: An older (simplier) version of the script used to
   test the current version.
