@@ -24,3 +24,5 @@ to the differents versions that were included in various projects.
 * Fix various quoting mistakes.
 * Replace `diff` by `cmp` when comparing regular files.
 * Execute the specified command without considering the defined functions.
+* Handle race conditions on multiple calls to `mkdir`. For an explanation of the
+  importance of this, see the [GNU Coding Standards](http://bit.ly/1VeuAUJ).

@@ -368,12 +368,6 @@ OUTPUT FILES
               Compared against
               “<definition directory>/out-<arg>/<test case name>”.
 
-       Note: Even if this script creates the required directories automatica-
-       ly, it does not use the more robust cross-platform way to do this: it
-       simply uses “mkdir -p”. If your build system already offer a more por-
-       table way to create missing directories (like Autoconf and Automake),
-       rely on it instead. For more details, see <http://bit.ly/1VeuAUJ>.
-
 EXTENDED DESCRIPTION
    Redefining how to run a test
        By default, SlamTest runs the specified command by redirecting the
@@ -475,15 +469,61 @@ raise_usage_error() {
 # ##############################################################################
 # Others
 
+## create_directories directories…
+# An alternative to `mkdir -p` that handles race conditions between multiple
+# calls to `mkdir` on any POSIX system.
+#
+# @param directories the directories to create.
+create_directories() {
+	local directory
+	local last_right_part
+	local left_part
+	local right_part
+	local status
+
+	for directory in "$@"; do
+		mkdir -p -- "${directory}" > /dev/null 2>&1
+		if [ "$?" != 0 ]; then
+			# `mkdir -p` failed, but it may be because of a race condition (or
+			# a symbolic link). See <http://bit.ly/1VeuAUJ>.
+			# We fallback by creating each component of the path one-by-one.
+			# Note: If the path contains `../` or `./`, we just end up trying to
+			# create the same directory multiple times.
+			# TODO: Find a way to automate testing of this fallback.
+			right_part="${directory}"
+			left_part=
+			while [ -n "${right_part}" ]; do
+				last_right_part="${right_part}"
+				right_part="${right_part#*/}"
+				if [ "${last_right_part}" = "${right_part}" ]; then
+					left_part="${left_part}${right_part}"
+					right_part=
+				else
+					left_part="${left_part}${last_right_part%"$right_part"}"
+				fi
+				mkdir -- "${left_part}" > /dev/null 2>&1
+			done
+		fi
+
+		if [ \! -d "${directory}" ]; then
+			# Directory creation really failed (example: creation denied).
+			# Call `mkdir` again to know what exit status to return and to
+			# display the correct error message.
+			mkdir -- "${directory}"
+			return
+		fi
+	done
+}
+
 ##prepare_target
 # Creates the directories for the generated files.
 prepare_target() {
 	if [ -e "${TEST_SOURCE_DIRECTORY}/out" ]; then
-		mkdir -p -- "${TEST_TARGET_DIRECTORY}/out"
+		create_directories "${TEST_TARGET_DIRECTORY}/out" || exit
 	fi
 	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
 		if [ -e "${out_dir}" ]; then
-			mkdir -p -- "${TEST_TARGET_DIRECTORY}/${out_dir##*/}"
+			create_directories "${TEST_TARGET_DIRECTORY}/${out_dir##*/}" || exit
 		fi
 	done
 }
