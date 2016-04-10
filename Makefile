@@ -34,7 +34,7 @@ $(TARGET_DIR)/main/slamtest: $(SRC_DIR)/main/bash/slamtest
 	-for d in $(TARGET_DIRS); do mkdir "$$d"; done
 	project_version="$$(./version)" && \
 	sed "s/\\\$$VERSION\\\$$/$${project_version}/g" $(SRC_DIR)/main/bash/slamtest > $(TARGET_DIR)/main/slamtest && \
-	$(CHMOD) u+x target/main/slamtest
+	$(CHMOD) u+x $(TARGET_DIR)/main/slamtest
 
 # Removes generated files
 .PHONY: clean distclean mostlyclean maintainer-clean
