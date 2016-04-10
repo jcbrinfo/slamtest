@@ -22,10 +22,6 @@ TARGET_DIR = ./target
 TARGET_DIRS = $(TARGET_DIR) $(TARGET_DIR)/main \
 	$(TARGET_DIR)/test $(TARGET_DIR)/test/in $(TARGET_DIR)/test/out
 
-# ##############################################################################
-# Other macros
-
-project_version=$(shell ./version)
 
 # ##############################################################################
 # Targets
@@ -36,7 +32,8 @@ all: $(TARGET_DIR)/main/slamtest
 # Generates a versioned copy of the script.
 $(TARGET_DIR)/main/slamtest: $(SRC_DIR)/main/bash/slamtest
 	-for d in $(TARGET_DIRS); do mkdir "$$d"; done
-	sed "s/\\\$$VERSION\\\$$/$(project_version)/g" $(SRC_DIR)/main/bash/slamtest > $(TARGET_DIR)/main/slamtest && \
+	project_version="$$(./version)" && \
+	sed "s/\\\$$VERSION\\\$$/$${project_version}/g" $(SRC_DIR)/main/bash/slamtest > $(TARGET_DIR)/main/slamtest && \
 	$(CHMOD) u+x target/main/slamtest
 
 # Removes generated files
