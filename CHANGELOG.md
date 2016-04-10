@@ -21,3 +21,4 @@ to the differents versions that were included in various projects.
 * Do not assume expected output directories to exist.
 * Do not assume outputs to be regular files.
 * Fix various quoting mistakes.
+* Replace `diff` by `cmp` to make comparisons more reliable.

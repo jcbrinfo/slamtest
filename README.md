@@ -135,7 +135,7 @@ of results) can take the following values:
 		* `EXIT_MISMATCH`: Unexpected exit code.
 		* `OUT_MISMATCH`: Unexpected output.
 		* `INTERNAL_ERROR`: Error raised by SlamTest itself (internal error).
-		  This usually means that `diff` returned a unexpected exit status.
+		  This usually means that `cmp` returned a unexpected exit status.
 		* `NO_ACTUAL_OUT`: The file containing the actual output of the test
 		  was not found.
 		* `NO_EXPECTED_OUT`: No file describing the expected output found. In
@@ -164,7 +164,7 @@ of results) can take the following values:
 		* `"EXIT_MISMATCH"`: Unexpected exit code.
 		* `"OUT_MISMATCH"`: Unexpected output.
 		* `"INTERNAL_ERROR"`: Error raised by SlamTest itself (internal error).
-		  This usually means that `diff` returned a unexpected exit status.
+		  This usually means that `cmp` returned a unexpected exit status.
 		* `"NO_ACTUAL_OUT"`: The file containing the actual output of the test
 		  was not found.
 		* `"NO_EXPECTED_OUT"`: No file describing the expected output found. In
