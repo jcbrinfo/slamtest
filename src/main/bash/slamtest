@@ -84,7 +84,7 @@ test_all() {
 	done
 }
 
-##test_cmp test_name out_dir_name [variant]
+##test_compare test_name out_dir_name [variant]
 # Compares actual and expected outputs of the specified test.
 #
 # Expects the test has already been executed.
@@ -92,24 +92,40 @@ test_all() {
 # @param test_name the filename of the test
 # @param out_dir_name the filename of the output directories
 # @param variant the last argument to pass to the tested program
-test_cmp() {
+test_compare() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
 	local expected="${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}"
 	local actual="${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}"
-	local cmp_status
+	local status
+	local compare_program=
+	local compare_options=()
 
 	if [ -e "${actual}" ]; then
-		cmp -s -- "${actual}" "${expected}"
-		cmp_status="$?"
-		if [ "${cmp_status}" = 0 ]; then
+		# `cmp` is unable to compare anything else than regular files.
+		if [ -f "${actual}" ] && [ -f "${expected}" ]; then
+			compare_program=cmp
+			compare_options=(-s)
+		elif [ -f "${actual}" ] || [ -f "${expected}" ]; then
+			# The behaviour of `diff` (see below) is unpredictable in this edge
+			# case. So, we have to handle this case by ourselves.
+			add_fail "unexpected output" "${test_name}" "${variant[@]}"
+			return
+		else
+			compare_program=diff
+			compare_options=(-r)
+		fi
+		"${compare_program}" "${compare_options[@]}" -- \
+				"${actual}" "${expected}" > /dev/null 2>&1
+		status="$?"
+		if [ "${status}" = 0 ]; then
 			add_success "success" "${test_name}" "${variant[@]}"
-		elif [ "${cmp_status}" = 1 ]; then
+		elif [ "${status}" = 1 ]; then
 			add_fail "unexpected output" "${test_name}" "${variant[@]}"
 		else
-			add_fail "internal error: \`cmp\` failed" "${test_name}" \
-					"${variant[@]}"
+			add_fail "internal error: \`${compare_program}\` failed" \
+					"${test_name}" "${variant[@]}"
 		fi
 	else
 		add_fail "actual output missing" "${test_name}" "${variant[@]}"
@@ -134,7 +150,7 @@ test_one() {
 		add_fail "exit status not 0: got ${status}" "${test_name}" \
 				"${variant[@]}"
 	else
-		test_cmp "$@"
+		test_compare "$@"
 	fi
 }
 

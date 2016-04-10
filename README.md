@@ -86,7 +86,7 @@ tested command if you do not redefine `run_test`) is stored as an array in the
 Here is the default definition of `run_test`:
 ```
 run_test() {
-	"${tested_command[@]}" "${@:3}" < "$1" > "$2" 2>&1
+	command -- "${tested_command[@]}" "${@:3}" < "$1" > "$2" 2>&1
 }
 ```
 
@@ -135,7 +135,8 @@ of results) can take the following values:
 		* `EXIT_MISMATCH`: Unexpected exit code.
 		* `OUT_MISMATCH`: Unexpected output.
 		* `INTERNAL_ERROR`: Error raised by SlamTest itself (internal error).
-		  This usually means that `cmp` returned a unexpected exit status.
+		  This usually means that the program used to compare files returned a
+		  unexpected exit status.
 		* `NO_ACTUAL_OUT`: The file containing the actual output of the test
 		  was not found.
 		* `NO_EXPECTED_OUT`: No file describing the expected output found. In
@@ -164,7 +165,8 @@ of results) can take the following values:
 		* `"EXIT_MISMATCH"`: Unexpected exit code.
 		* `"OUT_MISMATCH"`: Unexpected output.
 		* `"INTERNAL_ERROR"`: Error raised by SlamTest itself (internal error).
-		  This usually means that `cmp` returned a unexpected exit status.
+		  This usually means that the program used to compare files returned a
+		  unexpected exit status.
 		* `"NO_ACTUAL_OUT"`: The file containing the actual output of the test
 		  was not found.
 		* `"NO_EXPECTED_OUT"`: No file describing the expected output found. In

@@ -20,5 +20,6 @@ to the differents versions that were included in various projects.
 ## Fixed
 * Do not assume expected output directories to exist.
 * Do not assume outputs to be regular files.
+* Do not use the `-q` option of `diff` (non-POSIX).
 * Fix various quoting mistakes.
-* Replace `diff` by `cmp` to make comparisons more reliable.
+* Replace `diff` by `cmp` when comparing regular files.
