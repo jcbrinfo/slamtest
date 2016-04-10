@@ -1,0 +1,105 @@
+#! /bin/sh
+# NAME
+#        version — Write the current version number of this “git” repository
+#
+# SYNOPSIS
+#        version
+#
+# DESCRIPTION
+#        Looks for the last “version-*” tag in order to build a version number
+#        compliant with Semantic Versioning 2.0.0. Unreleased version are marked
+#        with “-snapshot” and a build number (the shortened SHA1 hash). When
+#        there are uncommited changes, inserts “-snapshot.dirty” in the
+#        outputted version number.
+#
+# ENVIRONMENT VARIABLES
+#        VERSION_INCREMENT
+#               Specifies the part to increment when the current version is not
+#               a release (a tagged version). Valid values: “1.0.0”, “0.1.0”,
+#               “0.0.1”.
+#               (default: “0.1.0”)
+
+version=
+major=
+minor=
+patch_tags=
+patch=
+is_release=0
+tags=
+hash=
+
+## increment_version version
+# Increments the specified version number.
+#
+# @param version the version number, in the `X.Y.Z` format
+increment_version() {
+	major="${1%%.*}"
+	minor="${1#*.}"
+	minor="${minor%.*}"
+	patch_tags="${1##*.}"
+	patch="${patch_tags%%-*}"
+	tags="${patch_tags#-*}"
+
+	case "${VERSION_INCREMENT}" in
+	1.0.0)
+		major=$((major + 1))
+		;;
+	0.0.1)
+		patch=$((patch + 1))
+		;;
+	*)
+		minor=$((minor + 1))
+		;;
+	esac
+	if [ "$patch" = "$patch_tags" ]; then
+		printf '%s.%s.%s' "${major}" "${minor}" "${patch}"
+	else
+		printf '%s.%s.%s-%s' "${major}" "${minor}" "${patch}" "${tags}"
+	fi
+}
+
+## get_hash
+# Writes the hash of HEAD.
+get_hash() {
+	git rev-parse --verify --quiet --short HEAD
+}
+
+## append_tags version tags
+# Appends pre-release tags to the sepcified version.
+#
+# @param version the version number, in the `X.Y.Z` or `X.Y.Z-foo` format
+# @param tags a dot-separated list of tags
+append_tags() {
+	case "${version}" in
+	*-*)
+		printf '%s.%s' "$1" "$2"
+		;;
+	*)
+		printf '%s-%s' "$1" "$2"
+		;;
+	esac
+}
+
+version=$(git describe --tags --exact-match --match 'version-*' 2> /dev/null)
+if [ "$?" = 0 ]; then
+	is_release=1
+else
+	version=$(git describe --tags --abbrev=0 --match 'version-*' 2> /dev/null)
+	if [ "$?" != 0 ]; then
+		version=0.0.0
+	fi
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+	# The working directory has uncommited changes.
+	version=$(increment_version "${version}")
+	hash=$(get_hash) || exit 1
+	append_tags "${version}" 'snapshot.dirty'
+	printf '+%s\n' "${hash}"
+elif [ "${is_release}" = 0 ]; then
+	version=$(increment_version "${version}")
+	append_tags "${version}" 'snapshot'
+	printf '+%s\n' "${hash}"
+else
+	printf '%s\n' "${version}"
+fi

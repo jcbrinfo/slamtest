@@ -313,6 +313,7 @@ To show the current version of the script, use the `-v` option.
 		  `target/test/out` directory of each sub-project without altering the
 		  `src` directory of the main project.
 		* `out/`: The self-tests’ output.
+* `version`: A POSIX shell script used that computes version number.
 
 # Running the self-tests
 To test the current version using the older (simplier) version located in
@@ -325,6 +326,13 @@ you need to invoke `make all check`.
 
 Note: Because we test things like backslashes in filenames, some tests are
 incompatible with Microsoft’s systems.
+
+# Versioning
+Stable releases are marked by applying a `version-<version number>` tag to these
+commits. Version numbers comply with [Semantic Versioning](http://semver.org),
+version 2.0.0. In the source file (`src/main/bash/slamtest`), `$VERSION$` marks
+locations where the build script has to put the actual version of SlamTest while
+generating `target/main/slamtest`.
 
 # Goals
 Writting test cases using well-established test framework is usually a good
