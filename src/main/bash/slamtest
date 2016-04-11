@@ -33,8 +33,10 @@ test_target_directory="${DEFAULT_TEST_TARGET_DIRECTORY}"
 # ##############################################################################
 # Exit statuses
 
+readonly E_SUCCESS=0
 readonly E_FAIL=1
 readonly E_USAGE=2
+readonly E_MKDIR=3
 
 # ##############################################################################
 # Options
@@ -422,11 +424,13 @@ EXTENDED DESCRIPTION
        disturbing the inner workings of main script.
 
 EXIT STATUS
-       0      All tests pass.
+       ${E_SUCCESS}      All tests pass.
 
-       1      At least one test fails.
+       ${E_FAIL}      At least one test fails.
 
-       2      The script is not used correctly.
+       ${E_USAGE}      The script is not used correctly.
+
+       ${E_MKDIR}      Unable to create the required directories.
 
 EXAMPLES
        $0 java -cp target/main com.example.MyProgram
@@ -533,11 +537,12 @@ create_directories() {
 # Creates the directories for the generated files.
 prepare_target() {
 	if [ -e "${test_source_directory}/out" ]; then
-		create_directories "${test_target_directory}/out" || exit
+		create_directories "${test_target_directory}/out" || return
 	fi
 	for out_dir in "${test_source_directory}"/out-*; do
 		if [ -e "${out_dir}" ]; then
-			create_directories "${test_target_directory}/${out_dir##*/}" || exit
+			create_directories "${test_target_directory}/${out_dir##*/}" \
+					|| return
 		fi
 	done
 }
@@ -600,7 +605,7 @@ main() {
 
 	successes=0
 	fails=0
-	prepare_target
+	prepare_target || exit "${E_MKDIR}"
 	if [ -z "${test_case}" ]; then
 		test_all
 	else
@@ -613,6 +618,8 @@ main() {
 
 	if ((fails > 0)); then
 		exit "${E_FAIL}"
+	else
+		exit "${E_SUCCESS}"
 	fi
 }
 

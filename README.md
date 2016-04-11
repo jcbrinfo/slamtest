@@ -276,8 +276,9 @@ To make it easy to combine SlamTest with your other tools, the meaning of the
 following exit statuses is fixed:
 
 * 0: All tests pass.
-* 1: At least one test fail.
+* 1: At least one test fails.
 * 2: The script is not used correctly.
+* 3: Unable to create the required directories.
 
 ## Built-in help
 To display the embeded manual, use the `-h` option.

@@ -1,0 +1,5 @@
+#! /bin/bash
+# For this test, error messages are platform-dependent and locale-dependent.
+# This is why we ignore them.
+$1 true 2> /dev/null
+echo "?=$?"
