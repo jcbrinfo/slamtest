@@ -4,7 +4,7 @@
 "exit1","out",EXIT,0,1,
 "must_fail","out",OUT_MISMATCH,0,0,
 "must_pass","out",OK,0,0,
-"nothing_expected","",NO_EXPECTED_OUT,,,
+"nothing_expected",,NO_EXPECTED_OUT,,,
 ?=1
 ==j_==
 {

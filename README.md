@@ -152,7 +152,7 @@ of results) can take the following values:
   ```
   foo,"out",OK,0,0,
   bar,"out-42",EXIT_MISMATCH,0,21,
-  baz,"",NO_EXPECTED_OUT,,,
+  baz,,NO_EXPECTED_OUT,,,
   ```
 
 * `j`: Write a JSON object where the keys are the test cases’ names. Each value
@@ -308,7 +308,7 @@ To show the current version of the script, use the `-v` option.
 				  working directory is the one of the test case.
 			* `out/`: The expected outputs. WARNING: The files may contain some
 			  carriage returns (U+000D) that must be preserved as-is. Edit
-			  carefully (by using an command like `nano -N output_file`).
+			  carefully (by using an command like `nano -N <output file>`).
 * `target/`: The generated files.
 	* `test/`: The files generated during the self-tests done using the
 	  `check-with-lib` target of the `Makefile`.
