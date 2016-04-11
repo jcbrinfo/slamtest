@@ -325,7 +325,7 @@ To show the current version of the script, use the `-v` option.
 		  `target/test/out` directory of each sub-project without altering the
 		  `src` directory of the main project.
 		* `out/`: The self-tests’ output.
-* `version`: A POSIX shell script used that computes version number.
+* `version`: A POSIX shell script that computes the version number.
 
 # Running the self-tests
 To test the current version using the older (simplier) version located in
