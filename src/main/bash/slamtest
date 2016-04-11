@@ -45,13 +45,15 @@ readonly SOURCE_DIRECTORY_OPTION=d
 readonly TARGET_DIRECTORY_OPTION=g
 readonly HELP_OPTION=h
 readonly LOAD_MODULE_OPTION=l
+readonly SKIP_INCOMPLETE_TESTS_OPTION=s
 readonly TEST_CASE_OPTION=t
 readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
 readonly OPTION_STRING=":\
 ${SOURCE_DIRECTORY_OPTION}:${TARGET_DIRECTORY_OPTION}:${HELP_OPTION}\
-${LOAD_MODULE_OPTION}:${TEST_CASE_OPTION}:${VERSION_OPTION}\
+${LOAD_MODULE_OPTION}:${SKIP_INCOMPLETE_TESTS_OPTION}${TEST_CASE_OPTION}:\
+${VERSION_OPTION}\
 "
 
 # ##############################################################################
@@ -65,6 +67,11 @@ successes=
 
 # The number of failures.
 fails=
+
+# Indicates if the test cases without an expected output file are skipped.
+#
+# `1` if true. `0` if false.
+incomplete_tests_skipped=0
 
 # ##############################################################################
 # Test execution
@@ -187,7 +194,7 @@ test_one_input() {
 			test_one "${test_name}" "${out_dir_name}" "${out_dir_name#out-}"
 		fi
 	done
-	if [ "${has_out}" = 0 ]; then
+	if [ "${has_out}" = 0 ] && [ "${incomplete_tests_skipped}" = 0 ]; then
 		add_fail "expected output missing" "${test_name}"
 	fi
 }
@@ -282,7 +289,7 @@ NAME
        slamtest — run tests
 
 SYNOPSIS
-       $0 [-${LOAD_MODULE_OPTION} <script’s path>] \\
+       $0 [-${LOAD_MODULE_OPTION} <script’s path>] [-${SKIP_INCOMPLETE_TESTS_OPTION}] \\
            [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
        $0 -${HELP_OPTION}
        $0 -${VERSION_OPTION}
@@ -314,6 +321,9 @@ OPTIONS
               Include (“source”) the specified BASH script. For more informa-
               tion on how to use this feature, see the “Redefining how to run
               a test” subsection of the “EXTENDED DESCRIPTION”.
+
+       -${SKIP_INCOMPLETE_TESTS_OPTION}     Skip test cases without a file describing the expected output
+              instead of counting them as failures.
 
        -${TEST_CASE_OPTION} <test case name>
               Instead of running all test cases found, run only the specified
@@ -580,6 +590,9 @@ main() {
 		"${LOAD_MODULE_OPTION}")
 			load_module "${OPTARG}"
 			module_loaded=1
+			;;
+		"${SKIP_INCOMPLETE_TESTS_OPTION}")
+			incomplete_tests_skipped=1
 			;;
 		"${TEST_CASE_OPTION}")
 			test_case="${OPTARG}"

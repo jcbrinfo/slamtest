@@ -11,6 +11,7 @@ to the differents versions that were included in various projects.
 * Built-in manual.
 * Option to run a specific test case.
 * Options to customize paths.
+* Option to skip incomplete test definitions.
 
 ### Changed
 * Do not hard-code test cases’ variants.
