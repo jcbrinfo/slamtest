@@ -98,7 +98,6 @@ test_compare() {
 	local variant=("${@:3}")
 	local expected="${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}"
 	local actual="${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}"
-	local status
 	local compare_program=
 	local compare_options=()
 
@@ -118,15 +117,18 @@ test_compare() {
 		fi
 		"${compare_program}" "${compare_options[@]}" -- \
 				"${actual}" "${expected}" > /dev/null 2>&1
-		status="$?"
-		if [ "${status}" = 0 ]; then
+		case "$?" in
+		0)
 			add_success "success" "${test_name}" "${variant[@]}"
-		elif [ "${status}" = 1 ]; then
+			;;
+		1)
 			add_fail "unexpected output" "${test_name}" "${variant[@]}"
-		else
+			;;
+		*)
 			add_fail "internal error: \`${compare_program}\` failed" \
 					"${test_name}" "${variant[@]}"
-		fi
+			;;
+		esac
 	else
 		add_fail "actual output missing" "${test_name}" "${variant[@]}"
 	fi
@@ -142,16 +144,15 @@ test_one() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	run_test "${TEST_SOURCE_DIRECTORY}/in/${test_name}" \
-			"${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" \
-			"${variant[@]}"
-	local status="$?"
-	if [ "${status}" != 0 ]; then
-		add_fail "exit status not 0: got ${status}" "${test_name}" \
+	{
+		run_test "${TEST_SOURCE_DIRECTORY}/in/${test_name}" \
+				"${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" \
 				"${variant[@]}"
-	else
-		test_compare "$@"
-	fi
+	} || {
+		add_fail "exit status not 0: got $?" "${test_name}" "${variant[@]}"
+		return
+	}
+	test_compare "$@"
 }
 
 ##test_one_input test_name
@@ -479,11 +480,11 @@ create_directories() {
 	local last_right_part
 	local left_part
 	local right_part
-	local status
 
 	for directory in "$@"; do
-		mkdir -p -- "${directory}" > /dev/null 2>&1
-		if [ "$?" != 0 ]; then
+		{
+			mkdir -p -- "${directory}" > /dev/null 2>&1
+		} || {
 			# `mkdir -p` failed, but it may be because of a race condition (or
 			# a symbolic link). See <http://bit.ly/1VeuAUJ>.
 			# We fallback by creating each component of the path one-by-one.
@@ -502,7 +503,7 @@ create_directories() {
 				fi
 				mkdir -- "${left_part}" > /dev/null 2>&1
 			done
-		fi
+		}
 
 		if [ \! -d "${directory}" ]; then
 			# Directory creation really failed (example: creation denied).
