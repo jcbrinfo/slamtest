@@ -10,6 +10,7 @@ to the differents versions that were included in various projects.
 * Self-tests.
 * Built-in manual.
 * Option to run a specific test case.
+* Options to customize paths.
 
 ### Changed
 * Do not hard-code test cases’ variants.

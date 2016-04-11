@@ -25,8 +25,10 @@ LICENSE='
 
 # The following paths MUST NOT end with a slash.
 
-readonly TEST_SOURCE_DIRECTORY=src/test/resources
-readonly TEST_TARGET_DIRECTORY=target/test
+readonly DEFAULT_TEST_SOURCE_DIRECTORY=src/test/resources
+readonly DEFAULT_TEST_TARGET_DIRECTORY=target/test
+test_source_directory="${DEFAULT_TEST_SOURCE_DIRECTORY}"
+test_target_directory="${DEFAULT_TEST_TARGET_DIRECTORY}"
 
 # ##############################################################################
 # Exit statuses
@@ -37,6 +39,8 @@ readonly E_USAGE=2
 # ##############################################################################
 # Options
 
+readonly SOURCE_DIRECTORY_OPTION=d
+readonly TARGET_DIRECTORY_OPTION=g
 readonly HELP_OPTION=h
 readonly LOAD_MODULE_OPTION=l
 readonly TEST_CASE_OPTION=t
@@ -44,7 +48,8 @@ readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
 readonly OPTION_STRING=":\
-${HELP_OPTION}${LOAD_MODULE_OPTION}:${TEST_CASE_OPTION}:${VERSION_OPTION}\
+${SOURCE_DIRECTORY_OPTION}:${TARGET_DIRECTORY_OPTION}:${HELP_OPTION}\
+${LOAD_MODULE_OPTION}:${TEST_CASE_OPTION}:${VERSION_OPTION}\
 "
 
 # ##############################################################################
@@ -77,7 +82,7 @@ run_test() {
 test_all() {
 	local test_case
 
-	for test_case in "${TEST_SOURCE_DIRECTORY}"/in/*; do
+	for test_case in "${test_source_directory}"/in/*; do
 		if [ -e "${test_case}" ]; then
 			test_one_input "${test_case##*/}"
 		fi
@@ -96,8 +101,8 @@ test_compare() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	local expected="${TEST_SOURCE_DIRECTORY}/${out_dir_name}/${test_name}"
-	local actual="${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}"
+	local expected="${test_source_directory}/${out_dir_name}/${test_name}"
+	local actual="${test_target_directory}/${out_dir_name}/${test_name}"
 	local compare_program=
 	local compare_options=()
 
@@ -145,8 +150,8 @@ test_one() {
 	local out_dir_name="$2"
 	local variant=("${@:3}")
 	{
-		run_test "${TEST_SOURCE_DIRECTORY}/in/${test_name}" \
-				"${TEST_TARGET_DIRECTORY}/${out_dir_name}/${test_name}" \
+		run_test "${test_source_directory}/in/${test_name}" \
+				"${test_target_directory}/${out_dir_name}/${test_name}" \
 				"${variant[@]}"
 	} || {
 		add_fail "exit status not 0: got $?" "${test_name}" "${variant[@]}"
@@ -168,11 +173,11 @@ test_one_input() {
 	# Does this test case has at least one expected output?
 	local has_out=0
 
-	if [ -e "${TEST_SOURCE_DIRECTORY}"/out/"${test_name}" ]; then
+	if [ -e "${test_source_directory}"/out/"${test_name}" ]; then
 		has_out=1
 		test_one "${test_name}" out
 	fi
-	for expected_out_path in "${TEST_SOURCE_DIRECTORY}"/out-*/"${test_name}"; do
+	for expected_out_path in "${test_source_directory}"/out-*/"${test_name}"; do
 		if [ -e "${expected_out_path}" ]; then
 			has_out=1
 			out_dir="${expected_out_path%"/${test_name}"}"
@@ -292,6 +297,15 @@ DESCRIPTION
        this test case.
 
 OPTIONS
+       -${SOURCE_DIRECTORY_OPTION} <definition directory>
+              Set the path to the directory containing the test’s definitions.
+              (Default: “${DEFAULT_TEST_SOURCE_DIRECTORY}”)
+
+       -${TARGET_DIRECTORY_OPTION} <target directory>
+              Set the path to the directory containing the files generated du-
+              ring the tests.
+              (Default: “${DEFAULT_TEST_TARGET_DIRECTORY}”)
+
        -${HELP_OPTION}     Display the built-in manual (this manual).
 
        -${LOAD_MODULE_OPTION} <script’s path>
@@ -318,7 +332,7 @@ STDIN
 INPUT FILES
        <definition directory>
               The directory containing the test’s definitions.
-              (“${TEST_SOURCE_DIRECTORY}” by default)
+              (Default: “${DEFAULT_TEST_SOURCE_DIRECTORY}”)
 
        <definition directory>/in/<test case name>
               The input for the test case named “<test case name>“.
@@ -355,7 +369,7 @@ STDERR
 OUTPUT FILES
        <target directory>
               The directory containing the files generated during the tests.
-              (“${TEST_TARGET_DIRECTORY}” by default)
+              (Default: “${DEFAULT_TEST_TARGET_DIRECTORY}”)
 
        <target directory>/out/<test case name>
               The actual output for the test case named “<test case name>”,
@@ -518,12 +532,12 @@ create_directories() {
 ##prepare_target
 # Creates the directories for the generated files.
 prepare_target() {
-	if [ -e "${TEST_SOURCE_DIRECTORY}/out" ]; then
-		create_directories "${TEST_TARGET_DIRECTORY}/out" || exit
+	if [ -e "${test_source_directory}/out" ]; then
+		create_directories "${test_target_directory}/out" || exit
 	fi
-	for out_dir in "${TEST_SOURCE_DIRECTORY}"/out-*; do
+	for out_dir in "${test_source_directory}"/out-*; do
 		if [ -e "${out_dir}" ]; then
-			create_directories "${TEST_TARGET_DIRECTORY}/${out_dir##*/}" || exit
+			create_directories "${test_target_directory}/${out_dir##*/}" || exit
 		fi
 	done
 }
@@ -548,6 +562,12 @@ main() {
 
 	while getopts "${OPTION_STRING}" option_name; do
 		case "${option_name}" in
+		"${SOURCE_DIRECTORY_OPTION}")
+			test_source_directory="${OPTARG%%/}"
+			;;
+		"${TARGET_DIRECTORY_OPTION}")
+			test_target_directory="${OPTARG%%/}"
+			;;
 		"${HELP_OPTION}")
 			echo_help
 			return
