@@ -289,8 +289,9 @@ NAME
        slamtest — run tests
 
 SYNOPSIS
-       $0 [-${LOAD_MODULE_OPTION} <script’s path>] [-${SKIP_INCOMPLETE_TESTS_OPTION}] \\
-           [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
+       $0 \\
+           [-${SOURCE_DIRECTORY_OPTION} <definition directory>] [-${TARGET_DIRECTORY_OPTION} <target directory>] \\
+           [-${LOAD_MODULE_OPTION} <script’s path>] [-${SKIP_INCOMPLETE_TESTS_OPTION}] [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
        $0 -${HELP_OPTION}
        $0 -${VERSION_OPTION}
 
