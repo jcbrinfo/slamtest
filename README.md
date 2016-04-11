@@ -309,7 +309,16 @@ To show the current version of the script, use the `-v` option.
 			  carriage returns (U+000D) that must be preserved as-is. Edit
 			  carefully (by using an command like `nano -N output_file`).
 * `target/`: The generated files.
-	* `test/`: The files generated during the self-tests.
+	* `test/`: The files generated during the self-tests done using the
+	  `check-with-lib` target of the `Makefile`.
+		* `in/`: A copy of the test cases located in `src/test/resources/in`.
+		  The test cases are copied here to contain the side-effect of running
+		  the self-tests. That way, SlamTest can write output files in the
+		  `target/test/out` directory of each sub-project without altering the
+		  `src` directory of the main project.
+		* `out/`: The self-tests’ output.
+	* `test-with-current/`: The files generated during the self-tests done using
+	  the `check-with-current` target of the `Makefile`.
 		* `in/`: A copy of the test cases located in `src/test/resources/in`.
 		  The test cases are copied here to contain the side-effect of running
 		  the self-tests. That way, SlamTest can write output files in the
@@ -321,11 +330,12 @@ To show the current version of the script, use the `-v` option.
 # Running the self-tests
 To test the current version using the older (simplier) version located in
 `lib/test/bash/`, run `make check-with-lib`. To test the current version using
-itself, run `make check-with-src`. To run both targets, use `make check`.
+itself, run `make check-with-current`. To run both targets, use `make check`.
 
 Note: As specified by GNU Coding Standards, theses targets do not have `all` as
 a dependency. So, to build the script and run all the self-tests in one command,
-you need to invoke `make all check`.
+you need to invoke `make all check` (`make all && make check` if you use the
+`-j` option).
 
 Note: Because we test things like backslashes in filenames, some tests are
 incompatible with Microsoft’s systems.

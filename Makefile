@@ -47,13 +47,13 @@ maintainer-clean: clean
 .PHONY: check
 check: check-with-lib check-with-src
 
-# Tests the current version with an older (simplier) version.
+# Tests the built version with an older (simplier) version.
 .PHONY: check-with-lib
 check-with-lib:
 	-for dir in $(TARGET_DIRS); do mkdir "$${dir}"; done
 	$(LIB_DIR)/test/bash/slamtest $(SRC_DIR)/test/bash/self_test.sh
 
-# Tests the current version with itself.
-.PHONY: check-with-src
-check-with-src:
-	$(TARGET_DIR)/main/slamtest -l $(SRC_DIR)/test/bash/self_test.sh
+# Tests the built version with itself.
+.PHONY: check-with-current
+check-with-current:
+	$(TARGET_DIR)/main/slamtest -g $(TARGET_DIR)/test-with-current -l $(SRC_DIR)/test/bash/self_test.sh
