@@ -489,7 +489,6 @@ create_directories() {
 			# We fallback by creating each component of the path one-by-one.
 			# Note: If the path contains `../` or `./`, we just end up trying to
 			# create the same directory multiple times.
-			# TODO: Find a way to automate testing of this fallback.
 			right_part="${directory}"
 			left_part=
 			while [ -n "${right_part}" ]; do
