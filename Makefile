@@ -56,5 +56,4 @@ check-with-lib:
 # Tests the current version with itself.
 .PHONY: check-with-src
 check-with-src:
-	-for dir in $(TARGET_DIRS); do mkdir "$${dir}"; done
 	$(TARGET_DIR)/main/slamtest -l $(SRC_DIR)/test/bash/self_test.sh
