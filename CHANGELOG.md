@@ -12,12 +12,17 @@ to the differents versions that were included in various projects.
 * Option to run a specific test case.
 * Options to customize paths.
 * Option to skip incomplete test definitions.
+* A way to specify the exact expected exit status (see the “Changed” subsection
+  below).
 
 ### Changed
 * Do not hard-code test cases’ variants.
 * Do not hard-code how to run a test.
 * Create directories for generated files when needed.
 * Check for missing expected output.
+* For test that should return a non-zero exit status, instead of using a
+  different directory for the input files, seek the expected exit status in the
+  directory named `exit`.
 
 ## Fixed
 * Do not assume expected output directories to exist.

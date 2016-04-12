@@ -158,15 +158,24 @@ test_one() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	{
-		run_test "${test_source_directory}/in/${test_name}" \
-				"${test_target_directory}/${out_dir_name}/${test_name}" \
-				"${variant[@]}"
-	} || {
-		add_fail "exit status not 0: got $?" "${test_name}" "${variant[@]}"
-		return
-	}
-	test_compare "$@"
+	local expected_status_file="${test_source_directory}/exit/${test_name}"
+	local expected_status=0
+	local actual_status
+
+	if [ -f "${expected_status_file}" ]; then
+		expected_status=$(< "${expected_status_file}")
+	fi
+
+	run_test "${test_source_directory}/in/${test_name}" \
+			"${test_target_directory}/${out_dir_name}/${test_name}" \
+			"${variant[@]}"
+	actual_status="$?"
+	if [ "${actual_status}" = "${expected_status}" ]; then
+		test_compare "$@"
+	else
+		add_fail "exit status not ${expected_status}: got ${actual_status}" \
+				"${test_name}" "${variant[@]}"
+	fi
 }
 
 ##test_one_input test_name
@@ -350,12 +359,18 @@ INPUT FILES
        <definition directory>/in/<test case name>
               The input for the test case named “<test case name>“.
 
+       <definition directory>/exit/<test case name> (optional)
+              The expected exit status for the test case named “<test case
+              name>”. Contains only one line with the exit status in decimal,
+              encoded in US-ASCII. If this file is absent, the expected exit
+              status is 0.
+
        <definition directory>/out/<test case name>
               The expected output for the test case named “<test case name>”,
               when the tested command is invoked without any additional argu-
               ment.
 
-       <definition directory>/out-<arg>/<test case name>
+       <definition directory>/out-<arg>/<test case name> (optional)
               The expected output for the test case named “<test case name>”,
               when the “<arg>” argument is appended to the tested command.
 
