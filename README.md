@@ -132,7 +132,7 @@ of results) can take the following values:
 	   if no such file was found.
 	3. The degree of success of the test. Here are the possible values:
 		* `OK`: Success.
-		* `EXIT_MISMATCH`: Unexpected exit code.
+		* `EXIT_MISMATCH`: Unexpected exit status.
 		* `OUT_MISMATCH`: Unexpected output.
 		* `INTERNAL_ERROR`: Error raised by SlamTest itself (internal error).
 		  This usually means that the program used to compare files returned a
@@ -162,7 +162,7 @@ of results) can take the following values:
 	* `"result"`: The degree of success of the test. Here are the possible
 	  values:
 		* `"OK"`: Success.
-		* `"EXIT_MISMATCH"`: Unexpected exit code.
+		* `"EXIT_MISMATCH"`: Unexpected exit status.
 		* `"OUT_MISMATCH"`: Unexpected output.
 		* `"INTERNAL_ERROR"`: Error raised by SlamTest itself (internal error).
 		  This usually means that the program used to compare files returned a
