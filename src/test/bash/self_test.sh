@@ -9,6 +9,10 @@ run_test() {
 	mkdir -p -- "${TMP_DIR}"
 	cp -a -t "${TMP_DIR}" -- "$1"
 	(
+		# Force directory listing order, so the output of the test does not
+		# depend on user settings.
+		LC_COLLATE=C
+
 		cd "${TMP_DIR}/${test_name}"
 		set -- ../../../../target/main/slamtest
 		. main
