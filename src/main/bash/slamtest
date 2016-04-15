@@ -34,7 +34,7 @@ test_target_directory="${DEFAULT_TEST_TARGET_DIRECTORY}"
 # Exit statuses
 
 readonly E_SUCCESS=0
-readonly E_FAIL=1
+readonly E_FAILURE=1
 readonly E_USAGE=2
 readonly E_MKDIR=3
 
@@ -66,7 +66,7 @@ tested_command=
 successes=
 
 # The number of failures.
-fails=
+failures=
 
 # Indicates if the test cases without an expected output file are skipped.
 #
@@ -123,7 +123,7 @@ test_compare() {
 		elif [ -f "${actual}" ] || [ -f "${expected}" ]; then
 			# The behaviour of `diff` (see below) is unpredictable in this edge
 			# case. So, we have to handle this case by ourselves.
-			add_fail "unexpected output" "${test_name}" "${variant[@]}"
+			add_failure "unexpected output" "${test_name}" "${variant[@]}"
 			return
 		else
 			compare_program=diff
@@ -136,15 +136,15 @@ test_compare() {
 			add_success "success" "${test_name}" "${variant[@]}"
 			;;
 		1)
-			add_fail "unexpected output" "${test_name}" "${variant[@]}"
+			add_failure "unexpected output" "${test_name}" "${variant[@]}"
 			;;
 		*)
-			add_fail "internal error: \`${compare_program}\` failed" \
+			add_failure "internal error: \`${compare_program}\` failed" \
 					"${test_name}" "${variant[@]}"
 			;;
 		esac
 	else
-		add_fail "actual output missing" "${test_name}" "${variant[@]}"
+		add_failure "actual output missing" "${test_name}" "${variant[@]}"
 	fi
 }
 
@@ -173,7 +173,7 @@ test_one() {
 	if [ "${actual_status}" = "${expected_status}" ]; then
 		test_compare "$@"
 	else
-		add_fail "exit status not ${expected_status}: got ${actual_status}" \
+		add_failure "exit status not ${expected_status}: got ${actual_status}" \
 				"${test_name}" "${variant[@]}"
 	fi
 }
@@ -204,7 +204,7 @@ test_one_input() {
 		fi
 	done
 	if [ "${has_out}" = 0 ] && [ "${incomplete_tests_skipped}" = 0 ]; then
-		add_fail "expected output missing" "${test_name}"
+		add_failure "expected output missing" "${test_name}"
 	fi
 }
 
@@ -226,19 +226,19 @@ add_success() {
 	successes=$((successes + 1))
 }
 
-##add_fail message test_name [variant]
+##add_failure message test_name [variant]
 # Add a failure.
 #
 # @param message a short description of the failure
 # @param test_name the filename of the test
 # @param variant the last argument to pass to the tested program
-add_fail() {
+add_failure() {
 	if [ "$#" = 3 ]; then
 		printf -- '- [ ] `%s` (`%s`): %s\n' "$2" "$3" "$1"
 	else
 		printf -- '- [ ] `%s`: %s\n' "$2" "$1"
 	fi
-	fails=$((fails + 1))
+	failures=$((failures + 1))
 }
 
 ##echo_error message
@@ -249,16 +249,16 @@ echo_error() {
 	printf "%s: %s\n" "$0" "$1" >&2
 }
 
-##echo_summary total sucesses fails
+##echo_summary total sucesses failures
 # Writes the summary line.
 #
 # @param total the total number of tests
 # @param successes the number of successes
-# @param fails the number of failures
+# @param failures the number of failures
 echo_summary() {
 	local total="$1"
 	local successes="$2"
-	local fails="$3"
+	local failures="$3"
 
 	printf "%d " "${total}"
 	if ((total >= 2)); then
@@ -272,11 +272,11 @@ echo_summary() {
 	else
 		printf "success"
 	fi
-	printf ", %d " "${fails}"
-	if ((fails >= 2)); then
-		printf "fails"
+	printf ", %d " "${failures}"
+	if ((failures >= 2)); then
+		printf "failures"
 	else
-		printf "fail"
+		printf "failure"
 	fi
 	echo .
 }
@@ -388,7 +388,7 @@ STDOUT
        Except when run using the “-h” or “-v” option, a list the results is
        written. This list is formatted as task list using the GitHub Flavored
        Markdown. Then, a summary line of the form
-       “<t> tests, <s> sucesses, <f> fails.” is written.
+       “<t> tests, <s> sucesses, <f> failures.” is written.
 
 STDERR
        The standard error output of the script is reserved for writting diag-
@@ -452,7 +452,7 @@ EXTENDED DESCRIPTION
 EXIT STATUS
        ${E_SUCCESS}      All tests pass.
 
-       ${E_FAIL}      At least one test fails.
+       ${E_FAILURE}      At least one test fails.
 
        ${E_USAGE}      The script is not used correctly.
 
@@ -633,7 +633,7 @@ main() {
 	fi
 
 	successes=0
-	fails=0
+	failures=0
 	prepare_target || exit "${E_MKDIR}"
 	if [ -z "${test_case}" ]; then
 		test_all
@@ -641,12 +641,12 @@ main() {
 		test_one_input "${test_case}"
 	fi
 
-	total=$((successes + fails))
+	total=$((successes + failures))
 	echo
-	echo_summary "${total}" "${successes}" "${fails}"
+	echo_summary "${total}" "${successes}" "${failures}"
 
-	if ((fails > 0)); then
-		exit "${E_FAIL}"
+	if ((failures > 0)); then
+		exit "${E_FAILURE}"
 	else
 		exit "${E_SUCCESS}"
 	fi

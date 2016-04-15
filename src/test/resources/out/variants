@@ -3,4 +3,4 @@
 - [x] `no_arg`: success
 - [x] `variant` (`42`): success
 
-4 tests, 4 successes, 0 fail.
+4 tests, 4 successes, 0 failure.

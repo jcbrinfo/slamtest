@@ -31,7 +31,7 @@ This allow to use the output of the SlamTest directly as comments on GitHub.
 The actual outputs of the tested program are stored in the `target/test/out`
 directory. Note that the outputs combine bytes that the tested program writes in
 the standard output (`STDOUT`) and the standard error output (`STDERR`). A
-non-zero exit status counts as a fail.
+non-zero exit status counts as a failure.
 
 Now, SlamTest allows many variations of the aforementioned procedure.
 
@@ -225,7 +225,7 @@ The second character (for the summary line) can take the following values:
   row with the following 3 fields:
 	1. The total number of tests.
 	2. The number of successes.
-	3. The number of fails.
+	3. The number of failures.
 
   Example:
   ```
@@ -235,18 +235,18 @@ The second character (for the summary line) can take the following values:
 * `j`: Write a JSON object with the following keys:
 	* `"tests"`: The total number of tests.
 	* `"successes"`: The number of successes.
-	* `"fails"`: The number of fails.
+	* `"failures"`: The number of failures.
 
   Example:
   ```
-  {"tests": 3, "successes": 1, "fails": 2}
+  {"tests": 3, "successes": 1, "failures": 2}
   ```
 
-* `l` (default): Enumerate the count of tests, successes and fails.
+* `l` (default): Enumerate the count of tests, successes and failures.
 
   Example:
   ```
-  3 tests, 1 success, 2 fails.
+  3 tests, 1 success, 2 failures.
   ```
 
 * `s`: Write a summary as a score, that is a fraction of the number of successes
@@ -262,8 +262,8 @@ two outputs.
 
 ## Missing expected outputs
 By default, finding no expected output at all for a given test case (either in
-`src/test/resources/out` or in `src/test/resources/out-*`) count as a fail. If
-you want to silently skip the test case instead, use the `-s` flag.
+`src/test/resources/out` or in `src/test/resources/out-*`) counts as a failure.
+If you want to silently skip the test case instead, use the `-s` flag.
 
 ## Ignored files
 Because SlamTest uses a glob pattern that does not explicitly include files

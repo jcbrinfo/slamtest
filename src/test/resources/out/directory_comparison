@@ -2,5 +2,5 @@
 - [x] `must_pass`: success
 - [ ] `type_mismatch`: unexpected output
 
-3 tests, 1 success, 2 fails.
+3 tests, 1 success, 2 failures.
 ?=1

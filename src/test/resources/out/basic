@@ -3,5 +3,5 @@
 - [x] `must_pass`: success
 - [ ] `nothing_expected`: expected output missing
 
-4 tests, 1 success, 3 fails.
+4 tests, 1 success, 3 failures.
 ?=1
