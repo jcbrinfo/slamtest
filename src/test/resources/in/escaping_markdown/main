@@ -1,0 +1,19 @@
+#! /bin/bash
+# Checks that C0 characters and ` are always escaped in the Markdown format.
+#
+# Note:
+# We expect backticks to be converted as XML character references because of a
+# bug in the original Markdown parser. In fact, when you have two backslash-
+# backtick pairs, the backslash looses its meaning. Here is an example:
+#
+# +-------------+-------------------------+
+# | Markdown    | HTML                    |
+# +-------------+-------------------------+
+# | \`a         | <p>`a</p>               |
+# | \`a\`       | <p>\<code>a\</code></p> |
+# | &#96;a&#96; | <p>&#96;a&#96;</p>      |
+# +-------------+-------------------------+
+#
+# Tested with Markdown 1.0.1
+
+$1 -f 't_' true
