@@ -306,9 +306,16 @@ To show the current version of the script, use the `-v` option.
 				  The script takes the path to the current version of SlamTest
 				  as its only parameter. When the test case is run, the current
 				  working directory is the one of the test case.
-			* `out/`: The expected outputs. WARNING: The files may contain some
-			  carriage returns (U+000D) that must be preserved as-is. Edit
-			  carefully (by using an command like `nano -N <output file>`).
+			* `out/`: The expected outputs.
+
+			  WARNING: These files may contain some carriage returns (U+000D)
+			  and “delete” characters (U+007F) that must be preserved as-is.
+			  Edit carefully.
+
+			  You may use an command like `nano -N <output file>` to avoid any
+			  implicit conversion and an hex editor (or `xxd` combined with a
+			  text editor) to insert “delete” characters.
+
 * `target/`: The generated files.
 	* `test/`: The files generated during the self-tests done using the
 	  `check-with-lib` target of the `Makefile`.
