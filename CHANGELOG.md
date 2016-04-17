@@ -1,7 +1,8 @@
 # Change log
-## Unreleased
-This will be the first release. The list of changes below compares this release
-to the differents versions that were included in various projects.
+## 0.2.0 (2016-04-17)
+This is the first release of SlamTest as an independent project. The list of
+changes below compares this release to the differents versions that were
+included in various projects.
 
 ### Added
 * More complete documentation.
