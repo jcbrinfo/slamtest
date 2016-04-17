@@ -374,5 +374,25 @@ embed it easily in any project. The inspiration for the initial design was the
 scripts used to test [Nit](http://nitlanguage.org). Since then, many changes
 have been made based on the use cases encountered by SlamTest’s author.
 
+# Competition
+There are plenty of test frameworks written in BASH (or in POSIX Shell) out
+there. Some of them even offers you a Ruby-like API and colorized output. I have
+not yet had time to look at all of them, but SlamTest seems to be unique in its
+way to use the filesystem as the main structure to describe the tests and by
+saving the actual output of each test so you can use your favorite tool to
+inspect the outputs. At the end of the day, the best framework is the one that
+fits your needs. Here is an non-exhaustive (alphabetical) list:
+
+* [assert.sh](https://github.com/lehmannro/assert.sh)
+* [Bash Infinity Framework](https://invent.life/project/bash-infinity-framework)
+* [bash_unit](https://github.com/pgrange/bash_unit)
+* [bats](https://github.com/sstephenson/bats)
+* [jshu](https://github.com/Shadowfen/jshu)
+* [roundup](http://bmizerany.github.io/roundup)
+* [Shell2junit](https://code.google.com/archive/p/shell2junit)
+* [ShUnit](http://shunit.sourceforge.net/index.php)
+* [shunit2](https://github.com/kward/shunit2)
+* SlamTest 😊
+
 # License
 See `COPYING`.
