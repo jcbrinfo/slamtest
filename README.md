@@ -369,9 +369,9 @@ instead of an elaborate syntax tree.
 
 SlamTest was created to test these type of projects. The main goal is to make
 test creation and execution as simple as possible (just write two files by test
-case and launch a script) while keeping SlamTest itself small enough so you can
-embed it easily in any project. The first inspiration for the initial design was
-the scripts used to test [Nit](http://nitlanguage.org). Since then, many changes
+case and launch a script) while keeping SlamTest itself fat-free so you can
+embed it easily in any project. The inspiration for the initial design was the
+scripts used to test [Nit](http://nitlanguage.org). Since then, many changes
 have been made based on the use cases encountered by SlamTest’s author.
 
 # License
