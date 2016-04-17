@@ -6,6 +6,7 @@
 
 ### Fixed
 * Fix the JSON format when running only one test case.
+* When incrementing a version number, reset least-significant numbers.
 
 ## 0.2.1 (2016-04-17)
 ### Fixed
