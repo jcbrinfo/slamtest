@@ -2,7 +2,7 @@
 # See: README.md
 
 run_test() {
-	local TMP_DIR=target/test/in
+	local TMP_DIR="${2%/*/*}"/in
 	local test_name="${1##*/}"
 
 	rm -rf "${TMP_DIR}/${test_name}"
