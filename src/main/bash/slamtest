@@ -324,7 +324,9 @@ echo_test_case_start_json() {
 	if [ $((successes + failures)) != 0 ]; then
 		printf ','
 	fi
-	printf '\n	"%s": {' "${test_name}"
+	printf '\n	'
+	string_to_json "${test_name}"
+	printf ': {'
 	test_case_results=0
 }
 
@@ -352,15 +354,19 @@ echo_test_case_start_markdown_task_list() { :; }
 echo_result_csv() {
 	local code="$1"
 	#local description="$2"
-	local message="${3:+"\"$3\""}"
+	local message="$3"
 	local expected_status="$4"
 	local actual_status="$5"
 	local test_name="$6"
-	local out_dir_name="${7:+"\"$7\""}"
+	local out_dir_name="$7"
 	#local variant=("${@:8}")
 
-	printf '"%s",%s,%s,%s,%s,%s\r\n' "${test_name}" "${out_dir_name}" "${code}" \
-			"${expected_status}" "${actual_status}" "${message}"
+	string_to_csv "${test_name}"
+	printf ,
+	string_to_csv "${out_dir_name}"
+	printf ',%s,%s,%s,' "${code}" "${expected_status}" "${actual_status}"
+	string_to_csv "${message}"
+	printf '\r\n'
 }
 
 echo_result_json() {
@@ -376,8 +382,9 @@ echo_result_json() {
 	if [ "${test_case_results}" != 0 ]; then
 		printf ','
 	fi
-	printf '\n		"%s": {\n' "${out_dir_name}"
-	printf '			"result": "%s",\n' "${code}"
+	printf '\n		'
+	string_to_json "${out_dir_name}"
+	printf ': {\n			"result": "%s",\n' "${code}"
 	printf '			"expected_exit": %s,\n' "${expected_status}"
 	printf '			"exit": %s,\n' "${actual_status}"
 	printf '			"message": '
@@ -394,15 +401,20 @@ echo_result_markdown_task_list() {
 	local actual_status="$5"
 	local test_name="$6"
 	#local out_dir_name="$7"
-	local variant="${8+" (\`$8\`)"}"
+	local variant=("${@:8}")
 
 	if [ "${code}" = OK ]; then
-		printf -- '- [x] `%s`%s: %s%s\n' "${test_name}" "${variant}" \
-				"${description}" "${message}"
+		printf -- '- [x] '
 	else
-		printf -- '- [ ] `%s`%s: %s%s\n' "${test_name}" "${variant}" \
-				"${description}" "${message}"
+		printf -- '- [ ] '
 	fi
+	string_to_markdown_code "${test_name}"
+	if [ "${#variant}" != 0 ]; then
+		printf ' ('
+		string_to_markdown_code "${variant}"
+		printf ')'
+	fi
+	printf ': %s%s\n' "${description}" "${message}"
 }
 
 ##echo_test_case_end
@@ -580,10 +592,132 @@ nullable_string_to_json() {
 	if [ -z "$1" ]; then
 		printf 'null'
 	else
-		printf '"%s"' "$1"
+		string_to_json "$1"
 	fi
 }
 
+##string_to_csv s
+# Formats a string as a CSV cell.
+#
+# @param s the string to format
+string_to_csv() {
+	printf '%s' "${1:+"\"${1//\"/\"\"}\""}"
+}
+
+##string_to_json s
+# Formats a string as a JSON string.
+#
+# @param s the string to format
+string_to_json() {
+	declare -i i
+	local c
+
+	printf '"'
+	for ((i=0; i < ${#1}; ++i)); do
+		c="${1:$i:1}"
+		case "${c}" in
+		\\)
+			printf '\\\\'
+			;;
+		\")
+			printf '\\"'
+			;;
+		$'\b')
+			printf '\\b'
+			;;
+		$'\f')
+			printf '\\f'
+			;;
+		$'\n')
+			printf '\\n'
+			;;
+		$'\r')
+			printf '\\r'
+			;;
+		$'\t')
+			printf '\\t'
+			;;
+		[[:cntrl:]])
+			printf '\\u%04X' "'${c}"
+			;;
+		*)
+			printf '%s' "${c}"
+			;;
+		esac
+	done
+	printf '"'
+}
+
+##string_to_markdown_code s
+# Formats a string as a Markdown `<code>` element.
+#
+# @param s the string to format
+string_to_markdown_code() {
+	case "$1" in
+	*[\`[:cntrl:]]*)
+		printf '<code>'
+		string_to_markdown "$1"
+		printf '</code>'
+		;;
+	*)
+		printf '`%s`' "$1"
+		;;
+	esac
+}
+
+##string_to_markdown s
+# Formats a string as a XML text node written in Markdown.
+#
+# All C0 characters are converted into XML character/entity references.
+# Does not escape properly strings at the start of a line.
+#
+# Note: Backticks are converted as XML character references because of a bug in
+# the original Markdown parser. In fact, when you have two backslash-backtick
+# pairs, the backslash looses its meaning. Here is an example:
+#
+# +-------------+-------------------------+
+# | Markdown    | HTML                    |
+# +-------------+-------------------------+
+# | \`a         | <p>`a</p>               |
+# | \`a\`       | <p>\<code>a\</code></p> |
+# | &#96;a&#96; | <p>&#96;a&#96;</p>      |
+# +-------------+-------------------------+
+#
+# @param s the string to format
+string_to_markdown() {
+	declare -i i
+	local c
+
+	for ((i=0; i < ${#1}; ++i)); do
+		c="${1:$i:1}"
+		case "${c}" in
+		\&)
+			printf '&amp;'
+			;;
+		\")
+			printf '&quot;'
+			;;
+		\')
+			printf '&apos;'
+			;;
+		\<)
+			printf '&lt;'
+			;;
+		\>)
+			printf '&gt;'
+			;;
+		[\`[:cntrl:]])
+			printf '&#%d;' "'${c}"
+			;;
+		\\ | \* | _ | \[ | \])
+			printf '\\%s' "${c}"
+			;;
+		*)
+			printf '%s' "${c}"
+			;;
+		esac
+	done
+}
 
 # ##############################################################################
 # Built-in manual

@@ -5,6 +5,7 @@ A simple BASH script to run tests.
 
 * A POSIX-compliant system (Linux, *BSD, OS X, Cygwin, etc.)
 * BASH
+	* The locale’s encoding must be a superset of US-ASCII.
 * make, to build SlamTest itself or to run the self-tests
 
 # Usage
