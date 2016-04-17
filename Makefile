@@ -45,7 +45,7 @@ mostlyclean: clean
 maintainer-clean: clean
 
 .PHONY: check
-check: check-with-lib check-with-src
+check: check-with-lib check-with-current
 
 # Tests the built version with an older (simplier) version.
 .PHONY: check-with-lib
