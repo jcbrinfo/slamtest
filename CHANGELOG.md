@@ -1,4 +1,8 @@
 # Change log
+## Unreleased
+### Fixed
+* Remove the `version-` prefix from the outputted version.
+
 ## 0.2.0 (2016-04-17)
 This is the first release of SlamTest as an independent project. The list of
 changes below compares this release to the differents versions that were

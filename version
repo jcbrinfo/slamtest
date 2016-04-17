@@ -19,6 +19,7 @@
 #               “0.0.1”.
 #               (default: “0.1.0”)
 
+PREFIX=version-
 version=
 major=
 minor=
@@ -80,15 +81,27 @@ append_tags() {
 	esac
 }
 
-version=$(git describe --tags --exact-match --match 'version-*' 2> /dev/null)
-if [ "$?" = 0 ]; then
+# ##############################################################################
+# Main routine
+
+{
+	version=$(git describe --tags --exact-match --match "${PREFIX}"'*' \
+			2> /dev/null)
+} && {
 	is_release=1
-else
-	version=$(git describe --tags --abbrev=0 --match 'version-*' 2> /dev/null)
-	if [ "$?" != 0 ]; then
+	version="${version#"${PREFIX}"}"
+	true
+} || {
+	{
+		version=$(git describe --tags --abbrev=0 --match "${PREFIX}"'*' \
+				2> /dev/null)
+	} && {
+		version="${version#"${PREFIX}"}"
+		true
+	} || {
 		version=0.0.0
-	fi
-fi
+	}
+}
 
 if [ -n "$(git status --porcelain)" ]; then
 	# The working directory has uncommited changes.
