@@ -1,7 +1,8 @@
 # Change log
-## Unreleased
+## 0.2.1 (2016-04-17)
 ### Fixed
 * Remove the `version-` prefix from the outputted version.
+* Include the commit hash when versionning a clean snapshot.
 
 ## 0.2.0 (2016-04-17)
 This is the first release of SlamTest as an independent project. The list of

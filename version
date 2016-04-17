@@ -111,6 +111,7 @@ if [ -n "$(git status --porcelain)" ]; then
 	printf '+%s\n' "${hash}"
 elif [ "${is_release}" = 0 ]; then
 	version=$(increment_version "${version}")
+	hash=$(get_hash) || exit 1
 	append_tags "${version}" 'snapshot'
 	printf '+%s\n' "${hash}"
 else
