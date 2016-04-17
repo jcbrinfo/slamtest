@@ -1,0 +1,10 @@
+{
+	"must_pass": {
+		"out": {
+			"result": "OK",
+			"expected_status": null,
+			"actual_status": null,
+			"message": null
+		}
+	}
+}

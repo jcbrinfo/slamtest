@@ -4,6 +4,9 @@
 * Use `status` as the abbreviation of `exit status`.
 * For consistency, rename `"status"` as `"actual_status"` in the JSON format.
 
+### Fixed
+* Fix the JSON format when running only one test case.
+
 ## 0.2.1 (2016-04-17)
 ### Fixed
 * Remove the `version-` prefix from the outputted version.

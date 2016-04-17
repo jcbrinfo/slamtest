@@ -111,13 +111,11 @@ run_test() {
 test_all() {
 	local test_case
 
-	echo_result_list_start
 	for test_case in "${test_source_directory}"/in/*; do
 		if [ -e "${test_case}" ]; then
 			test_one_input "${test_case##*/}"
 		fi
 	done
-	echo_result_list_end
 }
 
 ##test_compare test_name out_dir_name [variant]
@@ -1258,11 +1256,13 @@ main() {
 	successes=0
 	failures=0
 	prepare_target || exit "${E_MKDIR}"
+	echo_result_list_start
 	if [ -z "${test_case}" ]; then
 		test_all
 	else
 		test_one_input "${test_case}"
 	fi
+	echo_result_list_end
 
 	total=$((successes + failures))
 	echo_before_summary
