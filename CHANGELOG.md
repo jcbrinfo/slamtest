@@ -2,6 +2,7 @@
 ## Unreleased
 ### Changed
 * Use `status` as the abbreviation of `exit status`.
+* For consistency, rename `"status"` as `"actual_status"` in the JSON format.
 
 ## 0.2.1 (2016-04-17)
 ### Fixed

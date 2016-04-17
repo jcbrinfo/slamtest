@@ -12,7 +12,7 @@
 		"out": {
 			"result": "STATUS_MISMATCH",
 			"expected_status": 0,
-			"status": 1,
+			"actual_status": 1,
 			"message": null
 		}
 	},
@@ -20,7 +20,7 @@
 		"out": {
 			"result": "OUT_MISMATCH",
 			"expected_status": null,
-			"status": null,
+			"actual_status": null,
 			"message": null
 		}
 	},
@@ -28,7 +28,7 @@
 		"out": {
 			"result": "OK",
 			"expected_status": null,
-			"status": null,
+			"actual_status": null,
 			"message": null
 		}
 	},
@@ -36,7 +36,7 @@
 		"": {
 			"result": "NO_EXPECTED_OUT",
 			"expected_status": null,
-			"status": null,
+			"actual_status": null,
 			"message": null
 		}
 	}

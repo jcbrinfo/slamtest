@@ -8,7 +8,7 @@
 		"out-\r\n\t\u0001\u001F`\u007F*_[]&'\"<>\\arg": {
 			"result": "OK",
 			"expected_status": null,
-			"status": null,
+			"actual_status": null,
 			"message": null
 		}
 	}

@@ -174,8 +174,8 @@ of results) can take the following values:
 		  that case, `""` is used in place of the aforementioned directory name.
 	* `"expected_status"`: The expected exit status. Its value is `null` except
 	  if the tested program returned an unexpected exit status.
-	* `"status"`: The exit status of the tested program. Its value is `null`
-	  except if the tested program returned an unexpected exit status.
+	* `"actual_status"`: The exit status of the tested program. Its value is
+	  `null` except if the tested program returned an unexpected exit status.
 	* `"message"`: The additional details. The corresponding value is `null` for
 	  most results except `"INTERNAL_ERROR"`.
 
@@ -186,7 +186,7 @@ of results) can take the following values:
   		"out": {
   			"result": "OK",
   			"expected_status": null,
-  			"status": null,
+  			"actual_status": null,
   			"message": null
   		}
   	},
@@ -194,7 +194,7 @@ of results) can take the following values:
   		"out-42": {
   			"result": "STATUS_MISMATCH",
   			"expected_status": 0,
-  			"status": 21,
+  			"actual_status": 21,
   			"message": null
   		}
   	},
@@ -202,7 +202,7 @@ of results) can take the following values:
   		"": {
   			"result": "NO_EXPECTED_OUT",
   			"expected_status": null,
-  			"status": null,
+  			"actual_status": null,
   			"message": null
   		}
   	}

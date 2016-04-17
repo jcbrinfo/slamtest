@@ -386,7 +386,7 @@ echo_result_json() {
 	string_to_json "${out_dir_name}"
 	printf ': {\n			"result": "%s",\n' "${code}"
 	printf '			"expected_status": %s,\n' "${expected_status}"
-	printf '			"status": %s,\n' "${actual_status}"
+	printf '			"actual_status": %s,\n' "${actual_status}"
 	printf '			"message": '
 	nullable_string_to_json "$message"
 	printf '\n		}'
@@ -939,7 +939,7 @@ EXTENDED DESCRIPTION
                      The expected exit status. Its value is null except if the
                      tested program returned an unexpected exit status.
 
-              status
+              actual_status
                      The exit status of the tested program. Its value is null
                      except if the tested program returned an unexpected exit
                      status.
@@ -955,7 +955,7 @@ EXTENDED DESCRIPTION
                              \"out\": {
                                  \"result\": \"OK\",
                                  \"expected_status\": null,
-                                 \"status\": null,
+                                 \"actual_status\": null,
                                  \"message\": null
                              }
                          },
@@ -963,7 +963,7 @@ EXTENDED DESCRIPTION
                              \"out-42\": {
                                  \"result\": \"STATUS_MISMATCH\",
                                  \"expected_status\": 0,
-                                 \"status\": 21,
+                                 \"actual_status\": 21,
                                  \"message\": null
                              }
                          },
@@ -971,7 +971,7 @@ EXTENDED DESCRIPTION
                              \"\": {
                                  \"result\": \"NO_EXPECTED_OUT\",
                                  \"expected_status\": null,
-                                 \"status\": null,
+                                 \"actual_status\": null,
                                  \"message\": null
                              }
                          }
