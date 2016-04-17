@@ -14,6 +14,8 @@ to the differents versions that were included in various projects.
 * Option to skip incomplete test definitions.
 * A way to specify the exact expected exit status (see the “Changed” subsection
   below).
+* Options to customize the output format.
+* Optional structured formats (JSON and CSV).
 
 ### Changed
 * Do not hard-code test cases’ variants.

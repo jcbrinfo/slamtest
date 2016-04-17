@@ -1,9 +1,9 @@
 ==__==
 ?=1
 ==c_==
-"exit1","out",EXIT,0,1,
-"must_fail","out",OUT_MISMATCH,0,0,
-"must_pass","out",OK,0,0,
+"exit1","out",EXIT_MISMATCH,0,1,
+"must_fail","out",OUT_MISMATCH,,,
+"must_pass","out",OK,,,
 "nothing_expected",,NO_EXPECTED_OUT,,,
 ?=1
 ==j_==
@@ -19,22 +19,22 @@
 	"must_fail": {
 		"out": {
 			"result": "OUT_MISMATCH",
-			"expected_exit": 0,
-			"exit": 0,
+			"expected_exit": null,
+			"exit": null,
 			"message": null
 		}
 	},
 	"must_pass": {
 		"out": {
 			"result": "OK",
-			"expected_exit": 0,
-			"exit": 0,
+			"expected_exit": null,
+			"exit": null,
 			"message": null
 		}
 	},
 	"nothing_expected": {
 		"": {
-			"result": "NO_EXPECTED_OUT"
+			"result": "NO_EXPECTED_OUT",
 			"expected_exit": null,
 			"exit": null,
 			"message": null

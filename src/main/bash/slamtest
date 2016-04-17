@@ -42,6 +42,7 @@ readonly E_MKDIR=3
 # Options
 
 readonly SOURCE_DIRECTORY_OPTION=d
+readonly FORMAT_OPTION=f
 readonly TARGET_DIRECTORY_OPTION=g
 readonly HELP_OPTION=h
 readonly LOAD_MODULE_OPTION=l
@@ -51,10 +52,23 @@ readonly VERSION_OPTION=v
 
 # The option string for `getopts`.
 readonly OPTION_STRING=":\
-${SOURCE_DIRECTORY_OPTION}:${TARGET_DIRECTORY_OPTION}:${HELP_OPTION}\
-${LOAD_MODULE_OPTION}:${SKIP_INCOMPLETE_TESTS_OPTION}${TEST_CASE_OPTION}:\
-${VERSION_OPTION}\
+${SOURCE_DIRECTORY_OPTION}:${FORMAT_OPTION}:${TARGET_DIRECTORY_OPTION}:\
+${HELP_OPTION}${LOAD_MODULE_OPTION}:${SKIP_INCOMPLETE_TESTS_OPTION}\
+${TEST_CASE_OPTION}:${VERSION_OPTION}\
 "
+
+# ##############################################################################
+# Formats
+
+readonly VOID_FORMAT=_
+readonly CSV_FORMAT=c
+readonly JSON_FORMAT=j
+readonly LONG_FORMAT=l
+readonly SCORE_FORMAT=s
+readonly MARKDOWN_TASK_LIST_FORMAT=t
+
+# Default value of the `$FORMAT_OPTION` option.
+readonly DEFAULT_FORMAT=tl
 
 # ##############################################################################
 # Global variables
@@ -67,6 +81,12 @@ successes=
 
 # The number of failures.
 failures=
+
+# The number of displayed results for a particular test case.
+#
+# Used internally for the JSON format. Whether or not this variable is set and
+# used depends on the format of the result list.
+test_case_results=
 
 # Indicates if the test cases without an expected output file are skipped.
 #
@@ -91,11 +111,13 @@ run_test() {
 test_all() {
 	local test_case
 
+	echo_result_list_start
 	for test_case in "${test_source_directory}"/in/*; do
 		if [ -e "${test_case}" ]; then
 			test_one_input "${test_case##*/}"
 		fi
 	done
+	echo_result_list_end
 }
 
 ##test_compare test_name out_dir_name [variant]
@@ -123,7 +145,9 @@ test_compare() {
 		elif [ -f "${actual}" ] || [ -f "${expected}" ]; then
 			# The behaviour of `diff` (see below) is unpredictable in this edge
 			# case. So, we have to handle this case by ourselves.
-			add_failure "unexpected output" "${test_name}" "${variant[@]}"
+			add_result OUT_MISMATCH \
+					"unexpected output" "" "" "" \
+					"${test_name}" "${out_dir_name}" "${variant[@]}"
 			return
 		else
 			compare_program=diff
@@ -133,18 +157,25 @@ test_compare() {
 				"${actual}" "${expected}" > /dev/null 2>&1
 		case "$?" in
 		0)
-			add_success "success" "${test_name}" "${variant[@]}"
+			add_result OK \
+					"success" "" "" "" \
+					"${test_name}" "${out_dir_name}" "${variant[@]}"
 			;;
 		1)
-			add_failure "unexpected output" "${test_name}" "${variant[@]}"
+			add_result OUT_MISMATCH \
+					"unexpected output" "" "" "" \
+					"${test_name}" "${out_dir_name}" "${variant[@]}"
 			;;
 		*)
-			add_failure "internal error: \`${compare_program}\` failed" \
-					"${test_name}" "${variant[@]}"
+			add_result INTERNAL_ERROR \
+					"internal error" "\`${compare_program}\` failed" "" "" \
+					"${test_name}" "${out_dir_name}" "${variant[@]}"
 			;;
 		esac
 	else
-		add_failure "actual output missing" "${test_name}" "${variant[@]}"
+		add_result NO_ACTUAL_OUT \
+				"actual output missing" "" "" "" \
+				"${test_name}" "${out_dir_name}" "${variant[@]}"
 	fi
 }
 
@@ -173,8 +204,10 @@ test_one() {
 	if [ "${actual_status}" = "${expected_status}" ]; then
 		test_compare "$@"
 	else
-		add_failure "exit status not ${expected_status}: got ${actual_status}" \
-				"${test_name}" "${variant[@]}"
+		add_result EXIT_MISMATCH \
+				"exit status not ${expected_status}: got ${actual_status}" "" \
+				"${expected_status}" "${actual_status}" "${test_name}" \
+				"${out_dir_name}" "${variant[@]}"
 	fi
 }
 
@@ -187,6 +220,8 @@ test_one_input() {
 	local expected_out_path
 	local out_dir
 	local out_dir_name
+
+	echo_test_case_start "${test_name}"
 
 	# Does this test case has at least one expected output?
 	local has_out=0
@@ -204,42 +239,50 @@ test_one_input() {
 		fi
 	done
 	if [ "${has_out}" = 0 ] && [ "${incomplete_tests_skipped}" = 0 ]; then
-		add_failure "expected output missing" "${test_name}"
+		add_result NO_EXPECTED_OUT "expected output missing" "" "" "" \
+				"${test_name}" ""
 	fi
+
+	echo_test_case_end
 }
 
 # ##############################################################################
 # Display
 
-##add_success message test_name [variant]
-# Adds a success.
+##add_result code description message expected_status actual_status test_name \
+##		out_dir_name [variant]
+# Adds a result.
 #
-# @param message a short description of the success
+# @param code the code to ouput for the CSV and JSON formats. The value `OK`
+# must be used to describe a success.
+# @param description a short description of the success or the failure
+# @param message the additonal details. Empty except for internal errors.
+# @param expected_status the expected exit status for this test. Empty if not
+#		applicable.
+# @param actual_status the actual exit status for this test. Empty if not
+#		applicable.
 # @param test_name the filename of the test
+# @param out_dir_name the filename of the output directories. Empty if not
+#		applicable.
 # @param variant the last argument to pass to the tested program
-add_success() {
-	if [ "$#" = 3 ]; then
-		printf -- '- [x] `%s` (`%s`): %s\n' "$2" "$3" "$1"
+add_result() {
+	local code="$1"
+
+	echo_result "$@"
+
+	if [ "${code}" = OK ]; then
+		successes=$((successes + 1))
 	else
-		printf -- '- [x] `%s`: %s\n' "$2" "$1"
+		failures=$((failures + 1))
 	fi
-	successes=$((successes + 1))
 }
 
-##add_failure message test_name [variant]
-# Add a failure.
+##echo_summary total sucesses failures
+# Writes the summary line.
 #
-# @param message a short description of the failure
-# @param test_name the filename of the test
-# @param variant the last argument to pass to the tested program
-add_failure() {
-	if [ "$#" = 3 ]; then
-		printf -- '- [ ] `%s` (`%s`): %s\n' "$2" "$3" "$1"
-	else
-		printf -- '- [ ] `%s`: %s\n' "$2" "$1"
-	fi
-	failures=$((failures + 1))
-}
+# @param total the total number of tests
+# @param successes the number of successes
+# @param failures the number of failures
 
 ##echo_error message
 # Writes the specified error message to the standard error output.
@@ -249,13 +292,169 @@ echo_error() {
 	printf "%s: %s\n" "$0" "$1" >&2
 }
 
+##echo_version
+# Writes the version.
+echo_version() {
+	printf "%s\n" "${VERSION}"
+}
+
+##echo_result_list_start
+# Displays the start of the result list.
+#
+# The actual implementation is chosen at run-time.
+
+echo_result_list_start_csv() { :; }
+
+echo_result_list_start_json() {
+	printf '{'
+}
+
+echo_result_list_start_markdown_task_list() { :; }
+
+##echo_test_case_start test_name
+# Displays the start of a test case.
+#
+# The actual implementation is chosen at run-time.
+#
+# @param test_name the filename of the test case
+
+echo_test_case_start_csv() { :; }
+
+echo_test_case_start_json() {
+	if [ $((successes + failures)) != 0 ]; then
+		printf ','
+	fi
+	printf '\n	"%s": {' "${test_name}"
+	test_case_results=0
+}
+
+echo_test_case_start_markdown_task_list() { :; }
+
+##echo_result code description message expected_status actual_status test_name \
+##		out_dir_name [variant]
+# Displays a result.
+#
+# The actual implementation is chosen at run-time.
+#
+# @param code the code to ouput for the CSV and JSON formats. The value `OK`
+# must be used to describe a success.
+# @param description a short description of the success or the failure
+# @param message the additonal details. Empty except for internal errors.
+# @param expected_status the expected exit status for this test. Empty if not
+#		applicable.
+# @param actual_status the actual exit status for this test. Empty if not
+#		applicable.
+# @param test_name the filename of the test
+# @param out_dir_name the filename of the output directories. Empty if not
+#		applicable.
+# @param variant the last argument to pass to the tested program
+
+echo_result_csv() {
+	local code="$1"
+	#local description="$2"
+	local message="${3:+"\"$3\""}"
+	local expected_status="$4"
+	local actual_status="$5"
+	local test_name="$6"
+	local out_dir_name="${7:+"\"$7\""}"
+	#local variant=("${@:8}")
+
+	printf '"%s",%s,%s,%s,%s,%s\r\n' "${test_name}" "${out_dir_name}" "${code}" \
+			"${expected_status}" "${actual_status}" "${message}"
+}
+
+echo_result_json() {
+	local code="$1"
+	#local description="$2"
+	local message="$3"
+	local expected_status="${4:-null}"
+	local actual_status="${5:-null}"
+	#local test_name="$6"
+	local out_dir_name="$7"
+	#local variant=("${@:8}")
+
+	if [ "${test_case_results}" != 0 ]; then
+		printf ','
+	fi
+	printf '\n		"%s": {\n' "${out_dir_name}"
+	printf '			"result": "%s",\n' "${code}"
+	printf '			"expected_exit": %s,\n' "${expected_status}"
+	printf '			"exit": %s,\n' "${actual_status}"
+	printf '			"message": '
+	nullable_string_to_json "$message"
+	printf '\n		}'
+	test_case_results=$((test_case_results + 1))
+}
+
+echo_result_markdown_task_list() {
+	local code="$1"
+	local description="$2"
+	local message="${3:+": $3"}"
+	local expected_status="$4"
+	local actual_status="$5"
+	local test_name="$6"
+	#local out_dir_name="$7"
+	local variant="${8+" (\`$8\`)"}"
+
+	if [ "${code}" = OK ]; then
+		printf -- '- [x] `%s`%s: %s%s\n' "${test_name}" "${variant}" \
+				"${description}" "${message}"
+	else
+		printf -- '- [ ] `%s`%s: %s%s\n' "${test_name}" "${variant}" \
+				"${description}" "${message}"
+	fi
+}
+
+##echo_test_case_end
+# Displays the end of a test case.
+#
+# The actual implementation is chosen at run-time.
+
+echo_test_case_end_csv() { :; }
+
+echo_test_case_end_json() {
+	printf '\n	}'
+}
+
+echo_test_case_end_markdown_task_list() { :; }
+
+##echo_result_list_end
+# Displays the end of the result list.
+#
+# The actual implementation is chosen at run-time.
+
+echo_result_list_end_csv() { :; }
+
+echo_result_list_end_json() {
+	printf '\n}\n'
+}
+
+echo_result_list_end_markdown_task_list() { :; }
+
+##echo_before_summary
+# Writes a empty line before the summary if needed.
+#
+# Must be called before writing the summary line. The actual implementation is
+# chosen at run-time.
+
 ##echo_summary total sucesses failures
 # Writes the summary line.
+#
+# The actual implementation is chosen at run-time.
 #
 # @param total the total number of tests
 # @param successes the number of successes
 # @param failures the number of failures
-echo_summary() {
+
+echo_summary_csv() {
+	printf '%s,%s,%s\r\n' "$1" "$2" "$3"
+}
+
+echo_summary_json() {
+	printf '{"tests": %s, "successes": %s, "failures": %s}\n' "$1" "$2" "$3"
+}
+
+echo_summary_long() {
 	local total="$1"
 	local successes="$2"
 	local failures="$3"
@@ -281,11 +480,110 @@ echo_summary() {
 	echo .
 }
 
-##echo_version
-# Writes the version.
-echo_version() {
-	printf "%s\n" "${VERSION}"
+echo_summary_score() {
+	printf '%s/%s\n' "$2" "$1"
 }
+
+##set_format format
+# Sets the output of this script to the specified format.
+#
+# Sets the following functions according to the specified format:
+# * {@link #echo_result_list_start}
+# * {@link #echo_test_case_start}
+# * {@link #echo_result}
+# * {@link #echo_test_case_end}
+# * {@link #echo_result_list_end}
+# * {@link #echo_before_summary}
+# * {@link #echo_summary}
+#
+# @param format the format specification, as described in the “Display format
+# 		specification” subsection of the built-in manual.
+set_format() {
+	local format="$1"
+
+	if [ "${#format}" != 2 ]; then
+		raise_invalid_argument "${FORMAT_OPTION}" "${format}"
+	fi
+
+	case "${format%?}" in
+	"${VOID_FORMAT}")
+		echo_result_list_start() { :; }
+		echo_test_case_start() { :; }
+		echo_result() { :; }
+		echo_test_case_end() { :; }
+		echo_result_list_end() { :; }
+		;;
+	"${CSV_FORMAT}")
+		echo_result_list_start() { echo_result_list_start_csv "$@"; }
+		echo_test_case_start() { echo_test_case_start_csv "$@"; }
+		echo_result() { echo_result_csv "$@"; }
+		echo_test_case_end() { echo_test_case_end_csv "$@"; }
+		echo_result_list_end() { echo_result_list_end_csv "$@"; }
+		;;
+	"${JSON_FORMAT}")
+		echo_result_list_start() { echo_result_list_start_json "$@"; }
+		echo_test_case_start() { echo_test_case_start_json "$@"; }
+		echo_result() { echo_result_json "$@"; }
+		echo_test_case_end() { echo_test_case_end_json "$@"; }
+		echo_result_list_end() { echo_result_list_end_json "$@"; }
+		;;
+	"${MARKDOWN_TASK_LIST_FORMAT}")
+		echo_result_list_start() {
+			echo_result_list_start_markdown_task_list "$@"
+		}
+		echo_test_case_start() { echo_test_case_start_markdown_task_list "$@"; }
+		echo_result() { echo_result_markdown_task_list "$@"; }
+		echo_test_case_end() { echo_test_case_end_markdown_task_list "$@"; }
+		echo_result_list_end() { echo_result_list_end_markdown_task_list "$@"; }
+		;;
+	*)
+		raise_invalid_argument "${FORMAT_OPTION}" "${format}"
+		;;
+	esac
+
+	case "${format#?}" in
+	"${VOID_FORMAT}")
+		echo_summary() { :; }
+		;;
+	"${CSV_FORMAT}")
+		echo_summary() { echo_summary_csv "$@"; }
+		;;
+	"${JSON_FORMAT}")
+		echo_summary() { echo_summary_json "$@"; }
+		;;
+	"${LONG_FORMAT}")
+		echo_summary() { echo_summary_long "$@"; }
+		;;
+	"${SCORE_FORMAT}")
+		echo_summary() { echo_summary_score "$@"; }
+		;;
+	*)
+		raise_invalid_argument "${FORMAT_OPTION}" "${format}"
+		;;
+	esac
+
+	case "${format}" in
+	?_ | _?)
+		echo_before_summary() { :; }
+		;;
+	*)
+		echo_before_summary() { echo; }
+		;;
+	esac
+}
+
+##nullable_string_to_json s
+# Formats a nullable string as a JSON string or `null`.
+#
+# @param s the string to format. An empty string is converted to `null`.
+nullable_string_to_json() {
+	if [ -z "$1" ]; then
+		printf 'null'
+	else
+		printf '"%s"' "$1"
+	fi
+}
+
 
 # ##############################################################################
 # Built-in manual
@@ -299,7 +597,7 @@ NAME
 
 SYNOPSIS
        $0 \\
-           [-${SOURCE_DIRECTORY_OPTION} <definition directory>] [-${TARGET_DIRECTORY_OPTION} <target directory>] \\
+           [-${SOURCE_DIRECTORY_OPTION} <definition directory>] [-${FORMAT_OPTION} <format>] [-${TARGET_DIRECTORY_OPTION} <target directory>] \\
            [-${LOAD_MODULE_OPTION} <script’s path>] [-${SKIP_INCOMPLETE_TESTS_OPTION}] [-${TEST_CASE_OPTION} <test case name>] [tested_command…]
        $0 -${HELP_OPTION}
        $0 -${VERSION_OPTION}
@@ -319,6 +617,12 @@ OPTIONS
        -${SOURCE_DIRECTORY_OPTION} <definition directory>
               Set the path to the directory containing the test’s definitions.
               (Default: “${DEFAULT_TEST_SOURCE_DIRECTORY}”)
+
+       -${FORMAT_OPTION} <format>
+              Set the output format of the result list and of the summary line.
+              For a description of the available choices, see the “Display
+              format specification” subsection of the “EXTENDED DESCRIPTION”.
+              (Default: “${DEFAULT_FORMAT}”)
 
        -${TARGET_DIRECTORY_OPTION} <target directory>
               Set the path to the directory containing the files generated du-
@@ -449,6 +753,178 @@ EXTENDED DESCRIPTION
        option) other than “run_test” in the included script in order to avoid
        disturbing the inner workings of main script.
 
+   Display format specification
+       Even if the default output of SlamTest is great, the “-${FORMAT_OPTION}” option allows
+       you to customize this output. Its argument is composed of two charac-
+       ter: one for the result list, then one for the summary line. The first
+       character (for the list of results) can take the following values:
+
+       ${VOID_FORMAT}      Write nothing at all.
+
+       ${CSV_FORMAT}      Write the content of a RFC 4180 (CSV) file, without the header.
+              For each test, write a row with the following 6 fields:
+
+              1. The name of the test case.
+
+              2. The filename of the directory of the expected output, or an
+                 empty string if no such file was found. This field is empty
+                 for test cases without expected output
+
+              3. The degree of success of the test. For the list of the possi-
+                 ble values, the “Result codes” subsection below.
+
+              4. The expected exit status. This field is empty except if the
+                 tested program returned an unexpected exit status.
+
+              5. The exit status of the tested program. This field is empty
+                 except if the tested program returned an unexpected exit sta-
+                 tus.
+
+              6. The additional details. This field is empty for most results
+                 except for internal errors.
+
+              Example:
+
+                     foo,\"out\",OK,,,
+                     bar,\"out-42\",EXIT_MISMATCH,0,21,
+                     baz,,NO_EXPECTED_OUT,,,
+
+
+       ${JSON_FORMAT}      Write a JSON object where the keys are the test cases’ names.
+              Each value is another JSON object with the filename of the dir-
+              ectory of the expected output as the key of each entry. For test
+              cases without expected output, the JSON object contains an empty
+              string as its one and only key. Each value is again a JSON ob-
+              ject with the following keys:
+
+              result
+                     The degree of success of the test. For the list of the
+                     possible values, the “Result codes” subsection below.
+
+              expected_exit
+                     The expected exit status. Its value is null except if the
+                     tested program returned an unexpected exit status.
+
+              exit
+                     The exit status of the tested program. Its value is null
+                     except if the tested program returned an unexpected exit
+                     status.
+
+              message
+                     The additional details. The corresponding value is null
+                     for most results except internal errors.
+
+              Example:
+
+                     {
+                         \"foo\": {
+                             \"out\": {
+                                 \"result\": \"OK\",
+                                 \"expected_exit\": null,
+                                 \"exit\": null,
+                                 \"message\": null
+                             }
+                         },
+                         \"bar\": {
+                             \"out-42\": {
+                                 \"result\": \"EXIT_MISMATCH\",
+                                 \"expected_exit\": 0,
+                                 \"exit\": 21,
+                                 \"message\": null
+                             }
+                         },
+                         \"baz\": {
+                             \"\": {
+                                 \"result\": \"NO_EXPECTED_OUT\",
+                                 \"expected_exit\": null,
+                                 \"exit\": null,
+                                 \"message\": null
+                             }
+                         }
+                     }
+
+       ${MARKDOWN_TASK_LIST_FORMAT}      Default: Write a GitHub task list.
+
+              Example:
+
+                     - [x] \`foo\`: success
+                     - [ ] \`bar\` (\`42\`): exit status not 0: got 21
+                     - [ ] \`baz\`: expected output missing
+
+       The second character (for the summary line) can take the following
+       values:
+
+       ${VOID_FORMAT}      Write nothing at all.
+
+       ${CSV_FORMAT}      Write the content of a RFC 4180 (CSV) file, without the header.
+              Write a row with the following 3 fields:
+
+              1. The total number of tests.
+
+              2. The number of successes.
+
+              3. The number of failures.
+
+              Example:
+
+                     3,1,2
+
+       ${JSON_FORMAT}      Write a JSON object with the following keys:
+
+              tests
+                     The total number of tests.
+
+              successes
+                     The number of successes.
+
+              failures
+                     The number of failures.
+
+              Example:
+
+                     {\"tests\": 3, \"successes\": 1, \"failures\": 2}
+
+       ${LONG_FORMAT}      Default: Enumerate the count of tests, successes and failures.
+
+              Example:
+
+                     3 tests, 1 success, 2 failures.
+
+       ${SCORE_FORMAT}      Write a summary as a score, that is a fraction of the number of
+              successes over the total number of tests.
+
+              Example:
+
+                     1/3
+
+       Note:
+              When none of the character of the format specification is “_”,
+              an empty line divides the two outputs.
+
+   Result codes
+       Here are the strings that SlamTest uses to represent the result of a
+       test in the CSV and JSON display formats:
+
+       OK
+              Success.
+
+       EXIT_MISMATCH
+              Unexpected exit status.
+
+       OUT_MISMATCH
+              Unexpected output.
+
+       INTERNAL_ERROR
+              Error raised by SlamTest itself (internal error). This usually
+              means that the program used to compare files returned a unexpec-
+              ted exit status.
+
+       NO_ACTUAL_OUT
+              The file containing the actual output of the test was not found.
+
+       NO_EXPECTED_OUT
+              No file describing the expected output found.
+
 EXIT STATUS
        ${E_SUCCESS}      All tests pass.
 
@@ -478,6 +954,15 @@ SEE ALSO
 
 # ##############################################################################
 # Errors
+
+##raise_invalid_argument option_name argument
+# Raise an error about a invalid option-argument.
+#
+# @param option_name the name of the option (without the dash)
+# @param argument the specified argument
+raise_invalid_argument() {
+	raise_usage_error "illegal argument for the -$1 option: $2"
+}
 
 ##raise_invalid_option option_name
 # Raise an error about an invalid option.
@@ -591,10 +1076,14 @@ main() {
 	local module_loaded=0
 	local test_case=
 
+	set_format "${DEFAULT_FORMAT}"
 	while getopts "${OPTION_STRING}" option_name; do
 		case "${option_name}" in
 		"${SOURCE_DIRECTORY_OPTION}")
 			test_source_directory="${OPTARG%%/}"
+			;;
+		"${FORMAT_OPTION}")
+			set_format "${OPTARG}"
 			;;
 		"${TARGET_DIRECTORY_OPTION}")
 			test_target_directory="${OPTARG%%/}"
@@ -642,7 +1131,7 @@ main() {
 	fi
 
 	total=$((successes + failures))
-	echo
+	echo_before_summary
 	echo_summary "${total}" "${successes}" "${failures}"
 
 	if ((failures > 0)); then

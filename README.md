@@ -117,7 +117,7 @@ by default), use the `-g` option.
 To run only one test case, specify its name using the `-t` option.
 
 ## Script’s output customization
-Even if the default output of SlamTest is great, the `-f` option allows to
+Even if the default output of SlamTest is great, the `-f` option allows you to
 customize this output. Its argument is composed of two character: one for the
 list of the individual results, then one for the summary line. The default value
 is `tl` (GitHub task list, long summary line). The first character (for the list
@@ -141,16 +141,16 @@ of results) can take the following values:
 		  was not found.
 		* `NO_EXPECTED_OUT`: No file describing the expected output found. In
 		  that case, `""` is used in place of the aforementioned directory name.
-	4. The expected exit status. This field is empty for `NO_EXPECTED_OUT`
-	   (and may be empty for `INTERNAL_ERROR`).
-	5. The exit status of the tested program. Its value is empty for
-	  `NO_EXPECTED_OUT` (and may be empty for `INTERNAL_ERROR`).
+	4. The expected exit status. This field is empty except if the tested
+	   program returned an unexpected exit status.
+	5. The exit status of the tested program. Its value is empty except if the
+       tested program returned an unexpected exit status.
 	6. The additional details. This field is empty for most results except
 	   `INTERNAL_ERROR`.
 
   Example:
   ```
-  foo,"out",OK,0,0,
+  foo,"out",OK,,,
   bar,"out-42",EXIT_MISMATCH,0,21,
   baz,,NO_EXPECTED_OUT,,,
   ```
@@ -171,10 +171,10 @@ of results) can take the following values:
 		  was not found.
 		* `"NO_EXPECTED_OUT"`: No file describing the expected output found. In
 		  that case, `""` is used in place of the aforementioned directory name.
-	* `"expected_exit"`: The expected exit status. Its value is `null` for
-	  `"NO_EXPECTED_OUT"` (and may be `null` for `"INTERNAL_ERROR"`).
-	* `"exit"`: The exit status of the tested program. Its value is `null` for
-	  `"NO_EXPECTED_OUT"` (and may be `null` for `"INTERNAL_ERROR"`).
+	* `"expected_exit"`: The expected exit status. Its value is `null` except if
+	  the tested program returned an unexpected exit status.
+	* `"exit"`: The exit status of the tested program. Its value is `null`
+	  except if the tested program returned an unexpected exit status.
 	* `"message"`: The additional details. The corresponding value is `null` for
 	  most results except `"INTERNAL_ERROR"`.
 
@@ -184,8 +184,8 @@ of results) can take the following values:
   	"foo": {
   		"out": {
   			"result": "OK",
-  			"expected_exit": 0,
-  			"exit": 0,
+  			"expected_exit": null,
+  			"exit": null,
   			"message": null
   		}
   	},
@@ -199,7 +199,7 @@ of results) can take the following values:
   	},
   	"baz": {
   		"": {
-  			"result": "NO_EXPECTED_OUT"
+  			"result": "NO_EXPECTED_OUT",
   			"expected_exit": null,
   			"exit": null,
   			"message": null
@@ -213,7 +213,7 @@ of results) can take the following values:
   Example:
   ```
   - [x] `foo`: success
-  - [ ] `bar` (42): exit status not 0: got 21
+  - [ ] `bar` (`42`): exit status not 0: got 21
   - [ ] `baz`: expected output missing
   ```
 
@@ -257,8 +257,8 @@ The second character (for the summary line) can take the following values:
   1/3
   ```
 
-Note: When neither character of the argument is `_`, an empty line divide the
-two outputs.
+Note: When none of the character of the format specification is `_`, an empty
+line divides the two outputs.
 
 ## Missing expected outputs
 By default, finding no expected output at all for a given test case (either in
