@@ -364,7 +364,7 @@ tools. Sometimes, the programming langage in which the project is written
 forces the authors to write a ton of lines for a simple test. Other times, the
 project is just a tiny toy program and writting elegant test suites would take
 a lot more time than writting the actual program. Also, when testing a compiler
-or an interpreter, it is often simplier to use a small snippet a the input
+or an interpreter, it is often simplier to use a small snippet as the input
 instead of an elaborate syntax tree.
 
 SlamTest was created to test these type of projects. The main goal is to make
