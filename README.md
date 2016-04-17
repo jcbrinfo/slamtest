@@ -100,11 +100,11 @@ workings of main script.
 Testing normal conditions is great. Testing also cases the program is expected
 to crash is better. For the latter cases, all you need to do is to write a file
 with the expected exit status as it content. This file must have the same name
-as the input file, and must be in the `src/test/resources/exit` directory of
+as the input file, and must be in the `src/test/resources/status` directory of
 your project.
 
 For example, if you expect your program to return `42` when running the test
-case `foo`, just create the `src/test/resources/exit/foo` file with `42` in it.
+case `foo`, just create the `src/test/resources/status/foo` file with `42` in it.
 
 ## Custom paths
 Until now, we used the `src/test/resources` directory for the test case
@@ -133,7 +133,7 @@ of results) can take the following values:
 	   if no such file was found.
 	3. The degree of success of the test. Here are the possible values:
 		* `OK`: Success.
-		* `EXIT_MISMATCH`: Unexpected exit status.
+		* `STATUS_MISMATCH`: Unexpected exit status.
 		* `OUT_MISMATCH`: Unexpected output.
 		* `INTERNAL_ERROR`: Error raised by SlamTest itself (internal error).
 		  This usually means that the program used to compare files returned a
@@ -152,7 +152,7 @@ of results) can take the following values:
   Example:
   ```
   foo,"out",OK,,,
-  bar,"out-42",EXIT_MISMATCH,0,21,
+  bar,"out-42",STATUS_MISMATCH,0,21,
   baz,,NO_EXPECTED_OUT,,,
   ```
 
@@ -163,7 +163,7 @@ of results) can take the following values:
 	* `"result"`: The degree of success of the test. Here are the possible
 	  values:
 		* `"OK"`: Success.
-		* `"EXIT_MISMATCH"`: Unexpected exit status.
+		* `"STATUS_MISMATCH"`: Unexpected exit status.
 		* `"OUT_MISMATCH"`: Unexpected output.
 		* `"INTERNAL_ERROR"`: Error raised by SlamTest itself (internal error).
 		  This usually means that the program used to compare files returned a
@@ -172,9 +172,9 @@ of results) can take the following values:
 		  was not found.
 		* `"NO_EXPECTED_OUT"`: No file describing the expected output found. In
 		  that case, `""` is used in place of the aforementioned directory name.
-	* `"expected_exit"`: The expected exit status. Its value is `null` except if
-	  the tested program returned an unexpected exit status.
-	* `"exit"`: The exit status of the tested program. Its value is `null`
+	* `"expected_status"`: The expected exit status. Its value is `null` except
+	  if the tested program returned an unexpected exit status.
+	* `"status"`: The exit status of the tested program. Its value is `null`
 	  except if the tested program returned an unexpected exit status.
 	* `"message"`: The additional details. The corresponding value is `null` for
 	  most results except `"INTERNAL_ERROR"`.
@@ -185,24 +185,24 @@ of results) can take the following values:
   	"foo": {
   		"out": {
   			"result": "OK",
-  			"expected_exit": null,
-  			"exit": null,
+  			"expected_status": null,
+  			"status": null,
   			"message": null
   		}
   	},
   	"bar": {
   		"out-42": {
-  			"result": "EXIT_MISMATCH",
-  			"expected_exit": 0,
-  			"exit": 21,
+  			"result": "STATUS_MISMATCH",
+  			"expected_status": 0,
+  			"status": 21,
   			"message": null
   		}
   	},
   	"baz": {
   		"": {
   			"result": "NO_EXPECTED_OUT",
-  			"expected_exit": null,
-  			"exit": null,
+  			"expected_status": null,
+  			"status": null,
   			"message": null
   		}
   	}

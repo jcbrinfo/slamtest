@@ -7,8 +7,8 @@
 	"\r\n\t\u0001\u001F`\u007F*_[]&'\"<>\\": {
 		"out-\r\n\t\u0001\u001F`\u007F*_[]&'\"<>\\arg": {
 			"result": "OK",
-			"expected_exit": null,
-			"exit": null,
+			"expected_status": null,
+			"status": null,
 			"message": null
 		}
 	}

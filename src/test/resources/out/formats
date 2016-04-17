@@ -1,7 +1,7 @@
 ==__==
 ?=1
 ==c_==
-"exit1","out",EXIT_MISMATCH,0,1,
+"exit1","out",STATUS_MISMATCH,0,1,
 "must_fail","out",OUT_MISMATCH,,,
 "must_pass","out",OK,,,
 "nothing_expected",,NO_EXPECTED_OUT,,,
@@ -10,33 +10,33 @@
 {
 	"exit1": {
 		"out": {
-			"result": "EXIT_MISMATCH",
-			"expected_exit": 0,
-			"exit": 1,
+			"result": "STATUS_MISMATCH",
+			"expected_status": 0,
+			"status": 1,
 			"message": null
 		}
 	},
 	"must_fail": {
 		"out": {
 			"result": "OUT_MISMATCH",
-			"expected_exit": null,
-			"exit": null,
+			"expected_status": null,
+			"status": null,
 			"message": null
 		}
 	},
 	"must_pass": {
 		"out": {
 			"result": "OK",
-			"expected_exit": null,
-			"exit": null,
+			"expected_status": null,
+			"status": null,
 			"message": null
 		}
 	},
 	"nothing_expected": {
 		"": {
 			"result": "NO_EXPECTED_OUT",
-			"expected_exit": null,
-			"exit": null,
+			"expected_status": null,
+			"status": null,
 			"message": null
 		}
 	}

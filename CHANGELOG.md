@@ -1,4 +1,8 @@
 # Change log
+## Unreleased
+### Changed
+* Use `status` as the abbreviation of `exit status`.
+
 ## 0.2.1 (2016-04-17)
 ### Fixed
 * Remove the `version-` prefix from the outputted version.

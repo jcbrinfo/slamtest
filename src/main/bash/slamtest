@@ -189,7 +189,7 @@ test_one() {
 	local test_name="$1"
 	local out_dir_name="$2"
 	local variant=("${@:3}")
-	local expected_status_file="${test_source_directory}/exit/${test_name}"
+	local expected_status_file="${test_source_directory}/status/${test_name}"
 	local expected_status=0
 	local actual_status
 
@@ -204,7 +204,7 @@ test_one() {
 	if [ "${actual_status}" = "${expected_status}" ]; then
 		test_compare "$@"
 	else
-		add_result EXIT_MISMATCH \
+		add_result STATUS_MISMATCH \
 				"exit status not ${expected_status}: got ${actual_status}" "" \
 				"${expected_status}" "${actual_status}" "${test_name}" \
 				"${out_dir_name}" "${variant[@]}"
@@ -385,8 +385,8 @@ echo_result_json() {
 	printf '\n		'
 	string_to_json "${out_dir_name}"
 	printf ': {\n			"result": "%s",\n' "${code}"
-	printf '			"expected_exit": %s,\n' "${expected_status}"
-	printf '			"exit": %s,\n' "${actual_status}"
+	printf '			"expected_status": %s,\n' "${expected_status}"
+	printf '			"status": %s,\n' "${actual_status}"
 	printf '			"message": '
 	nullable_string_to_json "$message"
 	printf '\n		}'
@@ -797,7 +797,7 @@ INPUT FILES
        <definition directory>/in/<test case name>
               The input for the test case named “<test case name>“.
 
-       <definition directory>/exit/<test case name> (optional)
+       <definition directory>/status/<test case name> (optional)
               The expected exit status for the test case named “<test case
               name>”. Contains only one line with the exit status in decimal,
               encoded in US-ASCII. If this file is absent, the expected exit
@@ -920,7 +920,7 @@ EXTENDED DESCRIPTION
               Example:
 
                      foo,\"out\",OK,,,
-                     bar,\"out-42\",EXIT_MISMATCH,0,21,
+                     bar,\"out-42\",STATUS_MISMATCH,0,21,
                      baz,,NO_EXPECTED_OUT,,,
 
 
@@ -935,11 +935,11 @@ EXTENDED DESCRIPTION
                      The degree of success of the test. For the list of the
                      possible values, the “Result codes” subsection below.
 
-              expected_exit
+              expected_status
                      The expected exit status. Its value is null except if the
                      tested program returned an unexpected exit status.
 
-              exit
+              status
                      The exit status of the tested program. Its value is null
                      except if the tested program returned an unexpected exit
                      status.
@@ -954,24 +954,24 @@ EXTENDED DESCRIPTION
                          \"foo\": {
                              \"out\": {
                                  \"result\": \"OK\",
-                                 \"expected_exit\": null,
-                                 \"exit\": null,
+                                 \"expected_status\": null,
+                                 \"status\": null,
                                  \"message\": null
                              }
                          },
                          \"bar\": {
                              \"out-42\": {
-                                 \"result\": \"EXIT_MISMATCH\",
-                                 \"expected_exit\": 0,
-                                 \"exit\": 21,
+                                 \"result\": \"STATUS_MISMATCH\",
+                                 \"expected_status\": 0,
+                                 \"status\": 21,
                                  \"message\": null
                              }
                          },
                          \"baz\": {
                              \"\": {
                                  \"result\": \"NO_EXPECTED_OUT\",
-                                 \"expected_exit\": null,
-                                 \"exit\": null,
+                                 \"expected_status\": null,
+                                 \"status\": null,
                                  \"message\": null
                              }
                          }
@@ -1042,7 +1042,7 @@ EXTENDED DESCRIPTION
        OK
               Success.
 
-       EXIT_MISMATCH
+       STATUS_MISMATCH
               Unexpected exit status.
 
        OUT_MISMATCH
