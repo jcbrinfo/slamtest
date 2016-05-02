@@ -10,7 +10,7 @@ A simple BASH script to run tests.
 
 # Usage
 SlamTest is a simple BASH script that runs a program against a series of inputs
-and checks that the outputs match the expected ones. The simpliest way to use
+and checks that the outputs match the expected ones. The simplest way to use
 this script is to follow the steps below:
 
 1. While at root of the SlamTest’s project, invoke `make` (or `make all`).
@@ -38,7 +38,7 @@ Now, SlamTest allows many variations of the aforementioned procedure.
 
 ## Varying argument
 Sometimes, you may want to run the same test case multiple times, but with
-differents arguments passed to the program. For example, you may need to test
+different arguments passed to the program. For example, you may need to test
 multiple iterations of the same algorithm. In order to do this, for each variant
 of a test, put an output file in a `src/test/resources/out-<arg>` directory
 instead of the usual `src/test/resources/out` directory, where `<arg>` is the
@@ -67,7 +67,7 @@ the start of the command to test.
 By default, SlamTest runs the specified command by redirecting the standard input
 and outputs, and append an additional argument when needed (see “Varying
 argument”). However, there are some situation were the tested program need to be
-invoked differently. May be the input file are actualy directories, may be the
+invoked differently. May be the input file are actually directories, may be the
 program requires the filenames as arguments… To handle these cases, SlamTest
 has the `-l` that takes the path of a BASH script that defines the `run_test`
 function.
@@ -282,7 +282,7 @@ following exit statuses is fixed:
 * 3: Unable to create the required directories.
 
 ## Built-in help
-To display the embeded manual, use the `-h` option.
+To display the embedded manual, use the `-h` option.
 
 ## Version
 To show the current version of the script, use the `-v` option.
@@ -290,10 +290,10 @@ To show the current version of the script, use the `-v` option.
 # Project structure
 * `CHANGELOG.md`: The project’s change log.
 * `COPYING`: The project’s license.
-* `lib/test/bash/slamtest`: An older (simplier) version of the script used to
+* `lib/test/bash/slamtest`: An older (simpler) version of the script used to
   test the current version.
 * `Makefile`
-* `README.md`: The ocumentation’s entry point (this file).
+* `README.md`: The documentation’s entry point (this file).
 * `src/`: The source files.
 	* `main/bash/slamtest`: The test runner.
 	* `test/`: The self-tests.
@@ -337,7 +337,7 @@ To show the current version of the script, use the `-v` option.
 * `version`: A POSIX shell script that computes the version number.
 
 # Running the self-tests
-To test the current version using the older (simplier) version located in
+To test the current version using the older (simpler) version located in
 `lib/test/bash/`, run `make check-with-lib`. To test the current version using
 itself, run `make check-with-current`. To run both targets, use `make check`.
 
@@ -360,11 +360,11 @@ generating `target/main/slamtest`.
 Writting test cases using well-established test framework is usually a good
 practice. But when the situation makes the process so laborious that it
 discourages developpers to write tests, we miss the goal of using these
-tools. Sometimes, the programming langage in which the project is written
+tools. Sometimes, the programming language in which the project is written
 forces the authors to write a ton of lines for a simple test. Other times, the
-project is just a tiny toy program and writting elegant test suites would take
-a lot more time than writting the actual program. Also, when testing a compiler
-or an interpreter, it is often simplier to use a small snippet as the input
+project is just a tiny toy program and writing elegant test suites would take
+a lot more time than writing the actual program. Also, when testing a compiler
+or an interpreter, it is often simpler to use a small snippet as the input
 instead of an elaborate syntax tree.
 
 SlamTest was created to test these type of projects. The main goal is to make
@@ -378,7 +378,7 @@ have been made based on the use cases encountered by SlamTest’s author.
 There are plenty of test frameworks written in BASH (or in POSIX Shell) out
 there. Some of them even offers you a Ruby-like API and colorized output. I have
 not yet had time to look at all of them, but SlamTest seems to be unique in its
-way to use the filesystem as the main structure to describe the tests and by
+way to use the file system as the main structure to describe the tests and by
 saving the actual output of each test so you can use your favorite tool to
 inspect the outputs. At the end of the day, the best framework is the one that
 fits your needs. Here is an non-exhaustive (alphabetical) list:

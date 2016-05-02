@@ -275,7 +275,7 @@ add_result() {
 	fi
 }
 
-##echo_summary total sucesses failures
+##echo_summary total successes failures
 # Writes the summary line.
 #
 # @param total the total number of tests
@@ -339,7 +339,7 @@ echo_test_case_start_markdown_task_list() { :; }
 # @param code the code to ouput for the CSV and JSON formats. The value `OK`
 # must be used to describe a success.
 # @param description a short description of the success or the failure
-# @param message the additonal details. Empty except for internal errors.
+# @param message the additional details. Empty except for internal errors.
 # @param expected_status the expected exit status for this test. Empty if not
 #		applicable.
 # @param actual_status the actual exit status for this test. Empty if not
@@ -447,7 +447,7 @@ echo_result_list_end_markdown_task_list() { :; }
 # Must be called before writing the summary line. The actual implementation is
 # chosen at run-time.
 
-##echo_summary total sucesses failures
+##echo_summary total successes failures
 # Writes the summary line.
 #
 # The actual implementation is chosen at run-time.
@@ -824,10 +824,10 @@ STDOUT
        Except when run using the “-h” or “-v” option, a list the results is
        written. This list is formatted as task list using the GitHub Flavored
        Markdown. Then, a summary line of the form
-       “<t> tests, <s> sucesses, <f> failures.” is written.
+       “<t> tests, <s> successes, <f> failures.” is written.
 
 STDERR
-       The standard error output of the script is reserved for writting diag-
+       The standard error output of the script is reserved for writing diag-
        nostic messages when SlamTest is incorrectly used.
 
 OUTPUT FILES
@@ -853,7 +853,7 @@ EXTENDED DESCRIPTION
        standard input and outputs, and append an additional argument when
        needed (see “INPUT FILES”). However, there are some situation were the
        tested program need to be invoked differently. May be the input file
-       are actualy directories, may be the program requires the filenames as
+       are actually directories, may be the program requires the filenames as
        arguments… To handle these cases, SlamTest has the “-${LOAD_MODULE_OPTION}” that takes the
        path of a BASH script that defines the “run_test” function.
 
