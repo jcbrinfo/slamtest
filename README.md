@@ -151,9 +151,9 @@ of results) can take the following values:
 
   Example:
   ```
-  foo,"out",OK,,,
-  bar,"out-42",STATUS_MISMATCH,0,21,
-  baz,,NO_EXPECTED_OUT,,,
+  "foo","out",OK,,,
+  "bar","out-42",STATUS_MISMATCH,0,21,
+  "baz",,NO_EXPECTED_OUT,,,
   ```
 
 * `j`: Write a JSON object where the keys are the test cases’ names. Each value
