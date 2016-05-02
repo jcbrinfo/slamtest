@@ -29,6 +29,20 @@ TARGET_DIRS = $(TARGET_DIR) $(TARGET_DIR)/main \
 .PHONY: all
 all: $(TARGET_DIR)/main/slamtest
 
+# The `install` and `uninstall` standard targets that are meaningless here.
+# However, we implements them anyway so people trying these targets will not
+# get an error message.
+.PHONY: install
+install: all
+	@echo
+	# There is nothing to install: simply copy “target/main/slamtest” in your project and your are all set.
+	@echo
+.PHONY: uninstall
+uninstall:
+	@echo
+	# Since there is nothing to install, there is nothing to uninstall either.
+	@echo
+
 # Generates a versioned copy of the script.
 $(TARGET_DIR)/main/slamtest: $(SRC_DIR)/main/bash/slamtest
 	-for d in $(TARGET_DIRS); do mkdir "$$d"; done
