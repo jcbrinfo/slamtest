@@ -65,7 +65,7 @@ increment_version() {
 ## get_hash
 # Writes the hash of HEAD.
 get_hash() {
-	git rev-parse --verify --quiet --short HEAD
+	git rev-parse --verify --quiet --short HEAD || printf '????'
 }
 
 ## append_tags version tags
@@ -109,12 +109,12 @@ append_tags() {
 if [ -n "$(git status --porcelain)" ]; then
 	# The working directory has uncommited changes.
 	version=$(increment_version "${version}")
-	hash=$(get_hash) || exit 1
+	hash=$(get_hash)
 	append_tags "${version}" 'snapshot.dirty'
 	printf '+%s\n' "${hash}"
 elif [ "${is_release}" = 0 ]; then
 	version=$(increment_version "${version}")
-	hash=$(get_hash) || exit 1
+	hash=$(get_hash)
 	append_tags "${version}" 'snapshot'
 	printf '+%s\n' "${hash}"
 else
