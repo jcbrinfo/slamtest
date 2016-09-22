@@ -52,11 +52,8 @@ $(TARGET_DIR)/main/slamtest: $(SRC_DIR)/main/bash/slamtest
 
 # Removes generated files
 .PHONY: clean distclean mostlyclean maintainer-clean
-clean:
+clean distclean mostlyclean maintainer-clean:
 	rm -rf target
-disclean: clean
-mostlyclean: clean
-maintainer-clean: clean
 
 .PHONY: check
 check: check-with-lib check-with-current
