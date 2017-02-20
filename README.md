@@ -374,7 +374,7 @@ embed it easily in any project. The inspiration for the initial design was the
 scripts used to test [Nit](http://nitlanguage.org). Since then, many changes
 have been made based on the use cases encountered by SlamTest’s author.
 
-# Competition
+# Alternatives
 There are plenty of test frameworks written in BASH (or in POSIX Shell) out
 there. Some of them even offers you a Ruby-like API and colorized output. I have
 not yet had time to look at all of them, but SlamTest seems to be unique in its
